@@ -686,9 +686,9 @@ void GLMapView::drawWater()
 	glTexCoordPointer( 2, GL_FLOAT, 0, NULL );
 
 	glUseProgram( waterShaderProgram );
-	if(m_time > 2000)
+	if(m_time > 1000)
 	{
-	  m_time = 2000;
+	  m_time = 1000;
 	  m_dtime = -m_dtime;
 	}
 	if(m_time < 0)
@@ -700,7 +700,7 @@ void GLMapView::drawWater()
 	//auto time = clock() - m_begTime;
 	//if( time > 20000 )
 	//	m_begTime = clock();
-	glUniform1f( timeLocation, (GLfloat)m_time/2000.0f );
+	glUniform1f( timeLocation, (GLfloat)m_time/1000.0f );
 	glDrawArrays( GL_TRIANGLES, 0, countWater );
 	glUseProgram( 0 );
 
