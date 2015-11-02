@@ -26,13 +26,13 @@ public:
 	/*! Конструктор класса, принимающий параметры: контейнер, в качестве ключа которого используется вершина, 
 			в качестве значения список полигонов. 
 			Конструктор удаляет из контейнера те записи которые соответствуют геометрии данного объекта. */
-        MeshObject( map< Vector3D*, std::shared_ptr<set<shared_ptr<Poly>>> > &vecToTri );
+  MeshObject( std::map< Vector3D*, std::shared_ptr<std::set<std::shared_ptr<Poly>>> > &vecToTri );
 	//! Хранилище вершин
-	set< Vector3D > points;
+	std::set< Vector3D > points;
 	//! Хранилище нормалей
-	set< Vector3D > normals;
+	std::set< Vector3D > normals;
 	//! Хранилище полигонов объекта
-	set< shared_ptr<Poly> > tris;
+	std::set< std::shared_ptr<Poly> > tris;
 };
 
 //------------------------------------------------------------------------------
@@ -55,14 +55,14 @@ public:
 	/*! Конструктор класса, принимающий параметры: контейнер, в качестве ключа которого используется вершина, 
 			в качестве значения список полигонов. 
 			Конструктор удаляет из контейнера те записи которые соответствуют геометрии данного объекта. */
-	MeshObstacle( map< Vector3D*, shared_ptr<set<shared_ptr<Poly>>> > &vecToTri );
+	MeshObstacle( std::map< Vector3D*, std::shared_ptr<std::set<std::shared_ptr<Poly>>> > &vecToTri );
 	//! Конструктор класса, принимающий параметры: контейнер map< Vector3D*, shared_ptr<set<shared_ptr<Poly>>> >, уровень воды, является ли препятствием
 	/*! Конструктор класса, принимающий параметры: контейнер, в качестве ключа которого используется вершина, 
 			в качестве значения список полигонов, уровень воды. 
 			Конструктор удаляет из контейнера те записи которые соответствуют геометрии данного объекта. */
-	MeshObstacle( map< Vector3D*, shared_ptr<set<shared_ptr<Poly>>> > &vecToTri, const float &level, bool &isObstacle );
+	MeshObstacle( std::map< Vector3D*, std::shared_ptr<std::set<std::shared_ptr<Poly>>> > &vecToTri, const float &level, bool &isObstacle );
 	//! Хранилище полигонов объекта
-	set< shared_ptr<Poly> > tris;
+	std::set< std::shared_ptr<Poly> > tris;
 	//! Найти ближайшее к точке P0 пересечение луча с полигоном
 	/*! Пересечение исключает ребра полигонов.
 			Вход: P0 - первая точка Vector3D луча
@@ -70,7 +70,7 @@ public:
 			Выход:	dst - точка перечечения
 							face - грань пересечения
 	*		@return	 Возвращает true если было пересечение, иначе false	*/
-	bool HalfIntersectRay( Vector3D &dst, shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 );  // Проверка на пересечение прямой без ребер треугольника
+	bool HalfIntersectRay( Vector3D &dst, std::shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 );  // Проверка на пересечение прямой без ребер треугольника
 	//! Найти любое пересечение луча с полигоном.
 	/*! Пересечение исключает ребра полигонов. Обнаруживает только факт пересечения без нахождения полигонов и точек пересечения.
 			Вход: P0 - первая точка Vector3D луча
@@ -84,7 +84,7 @@ public:
 			Выход:	dst - точка перечечения
 							face - грань пересечения
 	*		@return	 Возвращает true если было перечение, иначе false	*/
-	bool FullIntersectRay( Vector3D &dst, shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 );	 // Проверка на пересечение прямой с реберами треугольника
+	bool FullIntersectRay( Vector3D &dst, std::shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 );	 // Проверка на пересечение прямой с реберами треугольника
 	//! Найти любое пересечение луча с полигоном.
 	/*! Пересечение засчитывается, если луч прошел полигон объекта а также если попал на ребро полигона.
 			Обнаруживает только факт пересечения без возврата самих пересекаемых полигонов и точек пересечения.
@@ -99,7 +99,7 @@ public:
 			Выход:	dst - точка перечечения
 							face - грань пересечения
 	*		@return	 Возвращает true если было пересечение, иначе false	*/
-	bool HalfIntersect( Vector3D &dst, shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 );	// Проверка на пересечение отрезка без ребер треугольника
+	bool HalfIntersect( Vector3D &dst, std::shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 );	// Проверка на пересечение отрезка без ребер треугольника
 	//! Найти любое пересечение отрезка с полигоном.
 	/*! Пересечение исключает ребра полигонов. Обнаруживает только факт пересечения без нахождения полигонов и точек пересечения.
 			Вход: P0 - первая точка Vector3D отрезка
@@ -113,7 +113,7 @@ public:
 			Выход:	dst - точка перечечения
 							face - грань пересечения
 	*		@return	 Возвращает true если было пересечение, иначе false	*/
-	bool FullIntersect( Vector3D &dst, shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 );	// Проверка на пересечение отрезка с реберами треугольника
+	bool FullIntersect( Vector3D &dst, std::shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 );	// Проверка на пересечение отрезка с реберами треугольника
 	//! Найти любое пересечение отрезка с полигоном.
 	/*! Пересечение засчитывается, если отрезок прошел полигон объекта а также если попал на ребро полигона.
 			Обнаруживает только факт пересечения без нахождения пересекаемых полигонов и точек пересечения.
@@ -128,7 +128,7 @@ public:
 			Выход:	dst - точка перечечения
 							face - грань пересечения
 	*		@return	 Возвращает true если было пересечение, иначе false	*/
-	bool HalfIntersectExcludingP0( Vector3D &dst, shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 ); // Проверка на пересечение отрезка без ребер треугольника исключая начальную точку отрезка
+	bool HalfIntersectExcludingP0( Vector3D &dst, std::shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 ); // Проверка на пересечение отрезка без ребер треугольника исключая начальную точку отрезка
 	//! Найти любое пересечение отрезка с полигоном
 	/*! Пересечение исключает ребра полигонов и начало отрезка P0, т.е. если точка P0 лежит в полигоне, пересечение не засчитывается.
 			Вход: P0 - первая точка Vector3D отрезка
@@ -143,7 +143,7 @@ public:
 			Выход:	dst - точка перечечения
 							face - грань пересечения
 	*		@return	 Возвращает true если было пересечение, иначе false	*/
-	bool FullIntersectExcludingP0( Vector3D &dst, shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 ); // Проверка на пересечение отрезка с реберами треугольника исключая начальную точку отрезка
+	bool FullIntersectExcludingP0( Vector3D &dst, std::shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 ); // Проверка на пересечение отрезка с реберами треугольника исключая начальную точку отрезка
 	//! Найти любое пересечение отрезка с полигоном
 	/*! Пересечение засчитывается, если отрезок прошел полигон объекта, а также если попал на ребро полигона.
 			Пересечение исключает начало отрезка P0, т.е. если точка P0 лежит в полигоне, пересечение не засчитывается.
@@ -166,7 +166,7 @@ public:
 			Выход:	dst - точка перечечения
 							face - грань пересечения
 	*		@return	 Возвращает true если было пересечение, иначе false	*/
-	bool FullIntersectExcludingBoth( Vector3D &dst, shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 );
+	bool FullIntersectExcludingBoth( Vector3D &dst, std::shared_ptr<Poly> &face, const Vector3D &P0, const Vector3D &P1 );
 	//! Найти любое пересечение отрезка с объектом
 	/*! Пересечение засчитывается, если отрезок прошел полигон объекта, а также если попал на ребро полигона.
 			Пересечение исключает начало отрезка P0, т.е. если точка P0 лежит в полигоне.
@@ -176,7 +176,7 @@ public:
 	*		@return	 Возвращает true если было пересечение, иначе false	*/
 	bool SuperIntersect( const Vector3D &P0, const Vector3D &P1 );
 	//! Контейнер определящий связность между полигонами и ребрами
-	map<Edge, shared_ptr<set<shared_ptr<Poly>>>> edgeToTri;
+	std::map<Edge, std::shared_ptr<std::set<std::shared_ptr<Poly>>>> edgeToTri;
 private:
 	float level;
 	//! Функция заполняет контейнер edgeToTri

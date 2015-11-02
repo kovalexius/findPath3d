@@ -119,7 +119,7 @@ void Scene::createCells( vector<vector<shared_ptr<Cell>>> &cell, const set<Heigh
 				if( h == level )
 					h += step * 0.0001f;
 				cell[i][j] = shared_ptr<Cell>( new Cell( i*step + xmin, h, j*step + ymin, step ) );	// Установить ненулевой указатель типа Cell если препятсвие существует в данной ячейке
-				while( it->v.x < (i+1)*step + xmin && it->v.y < (j+1)*step + ymin && it != HMPoints.end() )
+        while (it != HMPoints.end() && it->v.x < (i + 1)*step + xmin && it->v.y < (j + 1)*step + ymin )
 				{
 					it++;
 				}

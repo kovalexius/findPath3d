@@ -12,48 +12,49 @@
 #include "GL/glu.h"
 #include "GL/glext.h"
 
-#ifdef _WIN32
+#if (_MSC_VER == 1600) || (_MSC_VER == 1800 )
+#define OGL_EXT
+#endif
+
+#ifdef OGL_EXT
 // GL_VERSION_1.3
-PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture;
+extern PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture;
 // end of GL_VERSION_1.3
 
 // GL_VERSION_1.5
-PFNGLGENBUFFERSPROC glGenBuffers;
-PFNGLBINDBUFFERPROC glBindBuffer;
-PFNGLBUFFERDATAPROC glBufferData;
-PFNGLDELETEBUFFERSPROC glDeleteBuffers;
+extern PFNGLGENBUFFERSPROC glGenBuffers;
+extern PFNGLBINDBUFFERPROC glBindBuffer;
+extern PFNGLBUFFERDATAPROC glBufferData;
+extern PFNGLDELETEBUFFERSPROC glDeleteBuffers;
 // end of GL_VERSION_1.5
 
 // GL_VERSION_2.0
-PFNGLVERTEXATTRIBPOINTERPROC		glVertexAttribPointer;
-PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
-PFNGLBINDATTRIBLOCATIONPROC		glBindAttribLocation;
-PFNGLGETATTRIBLOCATIONPROC		glGetAttribLocation;
-PFNGLGETACTIVEATTRIBPROC         glGetActiveAttrib;
-PFNGLGETUNIFORMLOCATIONPROC		glGetUniformLocation;
-PFNGLUNIFORM1FPROC				glUniform1f;
+extern PFNGLVERTEXATTRIBPOINTERPROC		glVertexAttribPointer;
+extern PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+extern PFNGLBINDATTRIBLOCATIONPROC		glBindAttribLocation;
+extern PFNGLGETATTRIBLOCATIONPROC		glGetAttribLocation;
+extern PFNGLGETACTIVEATTRIBPROC         glGetActiveAttrib;
+extern PFNGLGETUNIFORMLOCATIONPROC		glGetUniformLocation;
+extern PFNGLUNIFORM1FPROC				glUniform1f;
 
 
-PFNGLCREATESHADERPROC	glCreateShader;
-PFNGLSHADERSOURCEPROC	glShaderSource;
-PFNGLCOMPILESHADERPROC	glCompileShader;
-PFNGLCREATEPROGRAMPROC	glCreateProgram;
-PFNGLATTACHSHADERPROC	glAttachShader;
-PFNGLLINKPROGRAMPROC		glLinkProgram;
-PFNGLUSEPROGRAMPROC		glUseProgram;
-PFNGLGETSHADERIVPROC		glGetShaderiv;
-PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
-PFNGLGETPROGRAMIVPROC	 glGetProgramiv;
+extern PFNGLCREATESHADERPROC   glCreateShader;
+extern PFNGLSHADERSOURCEPROC	  glShaderSource;
+extern PFNGLCOMPILESHADERPROC	glCompileShader;
+extern PFNGLCREATEPROGRAMPROC	glCreateProgram;
+extern PFNGLATTACHSHADERPROC	  glAttachShader;
+extern PFNGLLINKPROGRAMPROC	  glLinkProgram;
+extern PFNGLUSEPROGRAMPROC		  glUseProgram;
+extern PFNGLGETSHADERIVPROC	  glGetShaderiv;
+extern PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+extern PFNGLGETPROGRAMIVPROC	  glGetProgramiv;
 // end of GL_VERSION_2.0
-#endif
-
-// GL_VERSION_1.5
-//PFNGLDELETEBUFFERSPROC glDeleteBuffers;
-// end of GL_VERSION_1.5
 
 bool Init_GLVERSION15(void);
-bool Init_ShaderObjects( void );
+bool Init_ShaderObjects(void);
 bool Init_VertexBufferObject(void);
-bool Init_VertexArray( void );
+bool Init_VertexArray(void);
+
+#endif
 
 #endif

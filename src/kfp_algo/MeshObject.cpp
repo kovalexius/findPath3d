@@ -1,5 +1,7 @@
 ﻿#include "MeshObject.h"
 
+using namespace std;
+
 // MeshObject
 MeshObject::MeshObject( map< Vector3D*, shared_ptr<set<shared_ptr<Poly>>>> &vecToTri )
 {

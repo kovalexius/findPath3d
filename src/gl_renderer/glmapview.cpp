@@ -1,6 +1,8 @@
 #include <iostream>
 #include "glmapview.h"
 
+using namespace std;
+
 void checkOpenGLerror()
 {
     GLenum errCode;
@@ -415,11 +417,15 @@ void GLMapView::paintGL()
 
 void GLMapView::initializeGL()
 {
+#ifdef OGL_EXT
 	bool rezult;
 	rezult = Init_GLVERSION15();
 	rezult = Init_VertexBufferObject();
 	rezult = Init_VertexArray();
 	rezult = Init_ShaderObjects();
+  if (!rezult)
+    QMessageBox::critical(NULL, QString("OpenGL 2.0 doesn't exists"), QString("Bad OpenGL"));
+#endif
 
 	calculateCamera();
 	GLfloat lightPos0[4]={ pCamera.x, pCamera.y, pCamera.z, 1.0 };

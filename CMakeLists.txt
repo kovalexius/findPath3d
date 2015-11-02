@@ -5,7 +5,7 @@ project(find_path)
 if(CMAKE_COMPILER_IS_GNUCXX)
     add_definitions( -Wall -Wl,--no-as-needed -pthread -lpthread -std=gnu++11 -DGL_GLEXT_PROTOTYPES )
 elseif (MSVC)
-        ## add appropriate keys
+    #add_definitions( -DGL_GLEXT_PROTOTYPES )
 endif()
 
 find_package (Qt4 REQUIRED)
@@ -52,7 +52,7 @@ include_directories(
 	             ./src/widgets/
                    )
 
-source_group(src)
+#source_group(src)
 
 configure_file( ./src/gl_renderer/Land.frag ${CMAKE_CURRENT_BINARY_DIR}/Land.frag COPYONLY )
 configure_file( ./src/gl_renderer/Land.vert ${CMAKE_CURRENT_BINARY_DIR}/Land.vert COPYONLY )

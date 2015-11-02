@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-//#include "GL/glcorearb.h"
 #include "glExtInit.h"
 
-// GL_VERSION_1.3
 bool IsExtEnable(const char * pName)
 {
     // Получить строку со списком доступных расширений
@@ -22,55 +20,59 @@ bool IsExtEnable(const char * pName)
     return false;
 }
 
+#ifdef OGL_EXT
+
+// GL_VERSION_1.3
+PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture;
 bool Init_GLVERSION15(void)
 {
     bool rez = true;
-#ifdef _WIN32
     glClientActiveTexture = ( PFNGLCLIENTACTIVETEXTUREPROC ) wglGetProcAddress( "glClientActiveTexture" );
     rez = ( glClientActiveTexture==nullptr) ? false : true;
-#endif
     return rez;
 }
 // end of GL_VERSION_1.3
 
 // GL_VERSION_1.5
-/*
 PFNGLGENBUFFERSPROC glGenBuffers;
 PFNGLBINDBUFFERPROC glBindBuffer;
 PFNGLBUFFERDATAPROC glBufferData;
 PFNGLDELETEBUFFERSPROC glDeleteBuffers;
-*/
-
 bool Init_VertexBufferObject(void)
 {
     //if( !IsExtEnable( "ARB_vertex_buffer_object" ) )
     //	return false;
     bool rez = true;
 
-#ifdef _WIN32
     glGenBuffers = ( PFNGLGENBUFFERSPROC ) wglGetProcAddress( "glGenBuffers" );
     glBindBuffer = ( PFNGLBINDBUFFERPROC ) wglGetProcAddress( "glBindBuffer" );
     glBufferData = ( PFNGLBUFFERDATAPROC ) wglGetProcAddress( "glBufferData" );
     rez = glGenBuffers && glBindBuffer && glBufferData && glDeleteBuffers;
-#endif
-#ifdef __linux
-    //glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)glXGetProcAddress?("glDeleteBuffers");
-    //void *ptr = glXGetProcAddress?("glDeleteBuffers");
-#endif
+
     return rez;
 }
 // end of GL_VERSION_1.5
 
 // GL_VERSION_2.0
-/*
-PFNGLVERTEXATTRIBPOINTERPROC	 glVertexAttribPointer;
+
+PFNGLVERTEXATTRIBPOINTERPROC		glVertexAttribPointer;
 PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
-PFNGLBINDATTRIBLOCATIONPROC		 glBindAttribLocation;
-PFNGLGETATTRIBLOCATIONPROC		 glGetAttribLocation;
+PFNGLBINDATTRIBLOCATIONPROC		glBindAttribLocation;
+PFNGLGETATTRIBLOCATIONPROC		glGetAttribLocation;
 PFNGLGETACTIVEATTRIBPROC         glGetActiveAttrib;
-PFNGLGETUNIFORMLOCATIONPROC		 glGetUniformLocation;
-PFNGLUNIFORM1FPROC				 glUniform1f;
-*/
+PFNGLGETUNIFORMLOCATIONPROC		glGetUniformLocation;
+PFNGLUNIFORM1FPROC				glUniform1f;
+
+PFNGLCREATESHADERPROC   glCreateShader;
+PFNGLSHADERSOURCEPROC	  glShaderSource;
+PFNGLCOMPILESHADERPROC	glCompileShader;
+PFNGLCREATEPROGRAMPROC	glCreateProgram;
+PFNGLATTACHSHADERPROC	  glAttachShader;
+PFNGLLINKPROGRAMPROC	  glLinkProgram;
+PFNGLUSEPROGRAMPROC		  glUseProgram;
+PFNGLGETSHADERIVPROC	  glGetShaderiv;
+PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+PFNGLGETPROGRAMIVPROC	  glGetProgramiv;
 
 bool Init_VertexArray( void )
 {
@@ -78,7 +80,6 @@ bool Init_VertexArray( void )
     //	return false;
     bool rez = true;
 
-#ifdef _WIN32
     glVertexAttribPointer = ( PFNGLVERTEXATTRIBPOINTERPROC ) wglGetProcAddress( "glVertexAttribPointer" );
     glEnableVertexAttribArray = ( PFNGLENABLEVERTEXATTRIBARRAYPROC ) wglGetProcAddress( "glEnableVertexAttribArray" );
     glBindAttribLocation = ( PFNGLBINDATTRIBLOCATIONPROC ) wglGetProcAddress( "glBindAttribLocation" );
@@ -87,23 +88,9 @@ bool Init_VertexArray( void )
     glGetUniformLocation = ( PFNGLGETUNIFORMLOCATIONPROC ) wglGetProcAddress( "glGetUniformLocation" );
     glUniform1f = ( PFNGLUNIFORM1FPROC ) wglGetProcAddress( "glUniform1f" );
     rez = glVertexAttribPointer && glEnableVertexAttribArray && glBindAttribLocation && glGetAttribLocation && glGetActiveAttrib && glGetUniformLocation;
-#endif
 
     return rez;
 }
-
-/*
-PFNGLCREATESHADERPROC	glCreateShader;
-PFNGLSHADERSOURCEPROC	glShaderSource;
-PFNGLCOMPILESHADERPROC	glCompileShader;
-PFNGLCREATEPROGRAMPROC	glCreateProgram;
-PFNGLATTACHSHADERPROC	glAttachShader;
-PFNGLLINKPROGRAMPROC	glLinkProgram;
-PFNGLUSEPROGRAMPROC		glUseProgram;
-PFNGLGETSHADERIVPROC	glGetShaderiv;
-PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
-PFNGLGETPROGRAMIVPROC		glGetProgramiv;
-*/
 
 bool Init_ShaderObjects( void )
 {
@@ -112,7 +99,6 @@ bool Init_ShaderObjects( void )
 
     bool rez = true;
 
-#ifdef _WIN32
     glCreateShader = ( PFNGLCREATESHADERPROC ) wglGetProcAddress( "glCreateShader" );
     glShaderSource = ( PFNGLSHADERSOURCEPROC ) wglGetProcAddress( "glShaderSource" );
     glCompileShader = ( PFNGLCOMPILESHADERPROC ) wglGetProcAddress( "glCompileShader" );
@@ -124,8 +110,9 @@ bool Init_ShaderObjects( void )
     glGetShaderInfoLog = ( PFNGLGETSHADERINFOLOGPROC ) wglGetProcAddress( "glGetShaderInfoLog" );
     glGetProgramiv = ( PFNGLGETPROGRAMIVPROC ) wglGetProcAddress( "glGetProgramiv" );
     rez = glCreateShader && glShaderSource && glCompileShader && glCreateProgram && glAttachShader && glLinkProgram && glUseProgram && glGetShaderiv && glGetShaderInfoLog && glGetProgramiv;
-#endif
 
     return rez;
 }
 // end of GL_VERSION_2.0
+
+#endif

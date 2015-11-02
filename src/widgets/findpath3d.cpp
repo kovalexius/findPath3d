@@ -1,5 +1,7 @@
 #include "findpath3d.h"
 
+using namespace std;
+
 findPath3D::findPath3D(QWidget *parent, Qt::WFlags flags)
 	: QMainWindow(parent, flags)
 {

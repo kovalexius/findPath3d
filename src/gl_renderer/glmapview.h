@@ -1,12 +1,7 @@
 #ifndef GLMAPVIEW_H
 #define GLMAPVIEW_H
 
-#ifdef _WIN32
 #include <QGLWidget>
-#else
-#include <QGLWidget>
-//#include <qgl.h>
-#endif
 
 #include <QtCore>
 #include <QtGui>
@@ -16,10 +11,7 @@
 #include "../kfp_algo/Geometry.h"
 #include "../kfp_algo/MeshObject.h"
 
-#include <GL/gl.h>
 #include "glExtInit.h"
-
-using namespace std;
 
 struct CheckPoint
 {
@@ -54,11 +46,11 @@ public:
 	GLMapView(QWidget *parent = 0);
 	~GLMapView();
 
-	void AddObject( const shared_ptr<MeshObject> & ob );
-	void AddObstacle( const shared_ptr<MeshObstacle> & ob );
-	void RemoveObject( const shared_ptr<MeshObject> & ob );
-	void AddWaterObject( const shared_ptr<MeshObject> &wr );
-	void AddWaterObstacle( const shared_ptr<MeshObstacle> &wr );
+	void AddObject( const std::shared_ptr<MeshObject> & ob );
+	void AddObstacle( const std::shared_ptr<MeshObstacle> & ob );
+	void RemoveObject( const std::shared_ptr<MeshObject> & ob );
+	void AddWaterObject( const std::shared_ptr<MeshObject> &wr );
+	void AddWaterObstacle( const std::shared_ptr<MeshObstacle> &wr );
 	void initWaterVBO();
 	void initObjectsVBO();
 	void StartRender();
@@ -102,15 +94,15 @@ private:
 	GLint view[4];
 	CheckPoint beginP;
 	CheckPoint endP;
-	list< Vector3D > checkPoints;
+	std::list< Vector3D > checkPoints;
 	
 	int m_time;
 	int m_dtime;
 
-	set< shared_ptr< MeshObject > > objects;		// Это отображаеься
-	set< shared_ptr< MeshObstacle > > obstacles;	// а здесь коллизии
-	shared_ptr< MeshObject > waterObject;
-	shared_ptr< MeshObstacle > waterObstacle;    // Чтобы мышкой по воде клацать
+	std::set< std::shared_ptr< MeshObject > > objects;		// Это отображается
+	std::set< std::shared_ptr< MeshObstacle > > obstacles;	// а здесь коллизии
+	std::shared_ptr< MeshObject > waterObject;
+	std::shared_ptr< MeshObstacle > waterObstacle;    // Чтобы мышкой по воде клацать
 	virtual void paintGL();
 	virtual void initializeGL();
 	virtual void mouseMoveEvent( QMouseEvent *event ); // Если двинули мышкой

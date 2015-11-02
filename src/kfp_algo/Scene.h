@@ -164,8 +164,8 @@ private:
 						vertexes - набор всех вершин поверхности
 						triangles - набор всех полигонов
 						normals - набор нормалей к полигонам */
-        void createMesh( std::set<Vector3D> &vertexes, std::set<shared_ptr<Poly>> &triangles, std::set<Vector3D> &normals,
-                         const std::vector<std::vector<shared_ptr<Cell>>> &cell, const int &im, const int &jm );
+        void createMesh( std::set<Vector3D> &vertexes, std::set<std::shared_ptr<Poly>> &triangles, std::set<Vector3D> &normals,
+                         const std::vector<std::vector<std::shared_ptr<Cell>>> &cell, const int &im, const int &jm );
 
 	//! Создает список вершин с привязанными к каждому группе полигонов
 	/*! Вход: triangles - список всех полигонов

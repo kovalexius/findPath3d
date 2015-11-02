@@ -16,8 +16,6 @@
 #include <map>
 #include <vector>
 
-using namespace std;
-
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -350,11 +348,11 @@ public:
 	//! Привязывает ребро edge к полигону
 	void AddEdge( const Edge &edge );
 
-	vector< Vector3D *> v;
+	std::vector< Vector3D *> v;
 	//! Текстурные координаты
-	vector< Vector2D > tex;
+	std::vector< Vector2D > tex;
 	Vector3D *normal;
-	set<Edge*> edges;
+	std::set<Edge*> edges;
 };
 
 //! Векторное уимножение Cross Product
