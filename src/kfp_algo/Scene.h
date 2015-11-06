@@ -37,7 +37,7 @@ class Scene
 {
 public:
 	//! Конструктор класса, принимающий параметры: имя файла, уровень воды
-	Scene( char* filename, float level );
+	Scene( const wchar_t* filename, float level );
 	~Scene();
 	//! Шаг или ширина ячейки
 	float step;
@@ -153,8 +153,10 @@ private:
 						jm - количество ячеек по y
 			Выход:
 						cell - двумерный массив объектов типа Cell */
-        void createCells( std::vector<std::vector<std::shared_ptr<Cell>>> &cell, const std::set<HeightMapPoint> &HMPoints,
-                          const float &xmin, const float &ymin, const int &im, const int &jm );
+    void createCells( std::vector<std::vector<std::shared_ptr<Cell>>> &cell, const std::set<HeightMapPoint> &HMPoints,
+                      const float &xmin, const float &ymin, const int &im, const int &jm );
+    void createCells( const std::set<HeightMapPoint> &HMPoints, const float &xmin, const float &ymin,
+                      const int &imax, const int &jmax, std::vector<std::vector<std::shared_ptr<Cell>>> &cell );
 
 	//! Создает параллелепипедную поверхность всех ячеек
 	/*!	Вход: cell - двумерный массив объектов Cell

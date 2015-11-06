@@ -31,10 +31,10 @@ findPath3D::~findPath3D()
 void findPath3D::onMapOpen()
 {
 	QString str;
-	filePath = QFileDialog::getOpenFileName(this,
+	m_filePath = QFileDialog::getOpenFileName(this,
      tr("Open MAP"), "", tr("MAP (*.map)"));
-	if(!filePath.isEmpty())
-		ui.label->setText( filePath );
+	if(!m_filePath.isEmpty())
+		ui.label->setText( m_filePath );
 }
 
 void findPath3D::onFindPath()
@@ -56,11 +56,13 @@ void findPath3D::onFindPath()
 
 void findPath3D::onMapCreate()
 {
-	QString str = ui.lineEdit->text();
-	float h = str.toFloat();
-	scn = new Scene( const_cast<char*>( filePath.toStdString().c_str() ), h );
+    QString str = ui.lineEdit->text();
+    float h = str.toFloat();
 
-	for( auto it = scn->objects.begin(); it != scn->objects.end(); it++ )
+    std::wstring filePath( (wchar_t*)m_filePath.unicode());
+    scn = new Scene( filePath.c_str(), h );
+
+    for( auto it = scn->objects.begin(); it != scn->objects.end(); it++ )
 		vw->AddObject( *it );
 	for( auto it = scn->obstacles.begin(); it != scn->obstacles.end(); it++ )
 		vw->AddObstacle( *it );

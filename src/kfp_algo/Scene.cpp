@@ -6,17 +6,17 @@
 
 using namespace std;
 
-Scene::Scene( char* filename, float level )
+Scene::Scene( const wchar_t* filename, float level )
 {
 	ground = -50;
 	this->level = level; 
 
-	streambuf* backup = cin.rdbuf();
-	ifstream f;
+	wstreambuf* backup = wcin.rdbuf();
+	wifstream f;
 	f.open( filename );
 	if( !f.is_open())
 		exit(-1);
-	cin.rdbuf( f.rdbuf() );
+	wcin.rdbuf( f.rdbuf() );
 	
 	set<HeightMapPoint> HMPoints;
 	f >> step;
@@ -29,7 +29,7 @@ Scene::Scene( char* filename, float level )
 		Ys.insert(y);			// для нахождения максимума и минимума
 		HMPoints.insert( HeightMapPoint( x, h, y ) );
 	}
-	cin.rdbuf(backup);
+	wcin.rdbuf(backup);
 
 	//! Определение координат габаритов будущей карты
 	float xmin = *Xs.begin();
@@ -45,11 +45,11 @@ Scene::Scene( char* filename, float level )
 
 	vector<vector<shared_ptr<Cell>>> cell;
 	createCells( cell, HMPoints, xmin, ymin, im, jm );
+  //createCells(HMPoints, xmin, ymin, im, jm, cell);
 
-
-        std::set<Vector3D> vertexes;
-        std::set< std::shared_ptr<Poly> > triangles;
-        std::set<Vector3D> normals;
+  std::set<Vector3D> vertexes;
+  std::set< std::shared_ptr<Poly> > triangles;
+  std::set<Vector3D> normals;
 	//! Генерация вершин, полинов и нормалей
 	createMesh( vertexes, triangles, normals, cell, im, jm );
 
@@ -90,8 +90,8 @@ Scene::Scene( char* filename, float level )
 	vec[1] = const_cast<Vector3D*>( &(*v2.first) ); 
 	vec[2] = const_cast<Vector3D*>( &(*v3.first) ); 
 	vec[3] = const_cast<Vector3D*>( &(*v4.first) );
-        Poly *tri = new Poly( vec, tex, 4, (new Vector3D(0, 1, 0)) );
-        triangles.insert( std::shared_ptr<Poly>( tri ) );                 // (new Vector3D(0, 1, 0)) Нормаль
+  Poly *tri = new Poly( vec, tex, 4, (new Vector3D(0, 1, 0)) );
+  triangles.insert( std::shared_ptr<Poly>( tri ) );                 // (new Vector3D(0, 1, 0)) Нормаль
 
 	createLinkPolyes( triangles, vecToPoly );
 	waterMesh = shared_ptr<MeshObject>( new MeshObject( vecToPoly) );
@@ -103,38 +103,62 @@ Scene::Scene( char* filename, float level )
 void Scene::createCells( vector<vector<shared_ptr<Cell>>> &cell, const set<HeightMapPoint> &HMPoints, 
 														const float &xmin, const float &ymin, const int &im, const int &jm )
 {
-	cell.resize(im);
-	auto it = HMPoints.begin();
-	for( int i = 0; i < im; i++ )
-	{
-		cell[i].resize( jm );
-		for( int j = 0; j < jm; j++ )
-		{
-			cell[i][j].reset( );			// Установить нулевой указатель типа Cell
-			Vector2D v = it->v;
-			if( v.x >= i*step + xmin && v.x < (i+1)*step + xmin && 
-					v.y >= j*step + ymin && v.y < (j+1)*step + ymin )
-			{
-				float h = it->h;
-				if( h == level )
-					h += step * 0.0001f;
-				cell[i][j] = shared_ptr<Cell>( new Cell( i*step + xmin, h, j*step + ymin, step ) );	// Установить ненулевой указатель типа Cell если препятсвие существует в данной ячейке
+  cell.resize(im);
+  auto it = HMPoints.begin();
+  for( int i = 0; i < im; i++ )
+  {
+    cell[i].resize( jm );
+    for( int j = 0; j < jm; j++ )
+    {
+      cell[i][j].reset( );			// Установить нулевой указатель типа Cell
+      if( it == HMPoints.end() )
+        continue;
+      Vector2D v = it->v;
+      if( v.x >= i*step + xmin && v.x < (i+1)*step + xmin && 
+          v.y >= j*step + ymin && v.y < (j+1)*step + ymin )
+      {
+        float h = it->h;
+        if( h == level )
+          h += step * 0.0001f;
+        cell[i][j] = shared_ptr<Cell>( new Cell( i*step + xmin, h, j*step + ymin, step ) );	// Установить ненулевой указатель типа Cell если препятсвие существует в данной ячейке
         while (it != HMPoints.end() && it->v.x < (i + 1)*step + xmin && it->v.y < (j + 1)*step + ymin )
-				{
-					it++;
-				}
-			}
-		}
-	}
+        {
+          it++;
+        }
+      }
+    }
+  }
+}
+
+void Scene::createCells( const std::set<HeightMapPoint> &HMPoints, const float &xmin, const float &ymin,
+                  const int &im, const int &jm, std::vector<std::vector<std::shared_ptr<Cell>>> &cell )
+{
+  cell.resize(im);
+  for (auto it = HMPoints.begin(); it != HMPoints.end(); it++)
+  {
+    int i = (it->v.x - xmin) / step;
+    int j = (it->v.y - ymin) / step;
+    if (cell[i].size() == 0)
+      cell[i].resize(jm);
+
+    float h = it->h;
+    if (h == level)
+      h += step * 0.0001f;
+
+    if (cell[i][j] == nullptr)
+      cell[i][j] = shared_ptr<Cell>(new Cell(i*step + xmin, h, j*step + ymin, step));
+  }
 }
 
 void Scene::createMesh( set<Vector3D> &vertexes, set<shared_ptr<Poly>> &triangles, set<Vector3D> &normals, 
-	const vector<vector<shared_ptr<Cell>>> &cell, const int &im, const int &jm )
+                        const vector<vector<shared_ptr<Cell>>> &cell, const int &im, const int &jm )
 {
 	Vector3D *vec[4];
 	Vector2D tex[4] = { Vector2D( 0, 0 ), Vector2D( 0, 1 ), Vector2D( 1, 0 ), Vector2D( 1, 1 ) };	// Текстурные координаты одинаковы для всех полигонов ( пополигонный тайлинг)
 	for( int i = 0; i < im; i++ )
 	{
+    if (cell[i].size() == 0)
+      continue;
 		for( int j = 0; j < jm; j++ )
 		{
 			if( cell[i][j] )
@@ -203,7 +227,7 @@ void Scene::createMesh( set<Vector3D> &vertexes, set<shared_ptr<Poly>> &triangle
 						}
 					}
 				}
-				if( i>0 )
+        if ( i > 0 && cell[i-1].size() > 0 )
 				{
 					if( !cell[i-1][j] )
 					{
@@ -242,9 +266,9 @@ void Scene::createMesh( set<Vector3D> &vertexes, set<shared_ptr<Poly>> &triangle
 						}
 					}
 				}
-				if( i<im-1 )
+				if( i < im-1 )
 				{
-					if( !cell[i+1][j] )
+					if( cell[i+1].size() > 0 && !cell[i+1][j] )
 					{
 						vec[0] = const_cast<Vector3D*>( &(*v3.first) ); 
 						vec[1] = const_cast<Vector3D*>( &(*v4.first) ); 
@@ -255,7 +279,7 @@ void Scene::createMesh( set<Vector3D> &vertexes, set<shared_ptr<Poly>> &triangle
 						triangles.insert( tri );
 					}
 				}
-				if( j<jm-1 )
+				if( j < jm-1 )
 				{
 					if( !cell[i][j+1] )
 					{

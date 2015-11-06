@@ -20,7 +20,7 @@ private:
 	Ui::findPath3DClass ui;
 	GLMapView *vw;
 	Scene *scn;
-	QString filePath;
+	QString m_filePath;
 public slots:
 	void onMapOpen();
 	void onMapCreate();
