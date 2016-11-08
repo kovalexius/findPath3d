@@ -9,74 +9,79 @@
 //------------------------------------------------------------------------------
 #ifndef HEIGHTMAP_H
 #define HEIGHTMAP_H
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+
+#include <memory>
 #include "Geometry.h"
+
+
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------ HeightMapPoint --------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+//---------------------------------- HMPoint -----------------------------------
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-//! Класс HeightMapPoint представляет двумерные случайные точки с высотами
+//! Represent 2D horizontal point with height
 /*! */
 //------------------------------------------------------------------------------
-class HeightMapPoint
+struct HMPoint
 {
-public:
-	HeightMapPoint();
-	HeightMapPoint( float x, float h, float y );
-	HeightMapPoint( const Vector2D& vec, float h );
-	HeightMapPoint( const HeightMapPoint& other );
-	HeightMapPoint& operator=( const HeightMapPoint& other );
+	HMPoint();
+	HMPoint( float x, float height, float y );
+	HMPoint( const Vector2D& vec, float height );
 
 	//! Сравнивает двумерны вектора. Оператор неравно
-	bool operator != ( const HeightMapPoint& other ) const;
+	bool operator != ( const HMPoint& other ) const;
 	//! Сравнивает двумерны вектора. Оператор равно
-	bool operator == ( const HeightMapPoint& other ) const;
+	bool operator == ( const HMPoint& other ) const;
 	//! Сравнивает двумерные вектора. Оператор меньше
-	bool operator < ( const HeightMapPoint& other ) const;
+	bool operator < ( const HMPoint& other ) const;
 
-	Vector2D v;
-	float	h;
+	Vector2D m_coord;
+	float	m_height;
 };
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+
 //------------------------------------------------------------------------------
 //----------------------------------- Cell -------------------------------------
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-//! Класс Cell представляет двумерные равнораспределенные точки с высотами
-//! Используется в двумерном массиве для определения препятствий
-//! Если препятствия не существует, то на его месте нулевой указатель
-/*! */
+//! Represent height map with min, max, step.
+//! If point at specified coordinates doesn't exist, then ground is returned
+/*!  */
 //------------------------------------------------------------------------------
-class Cell
+class HeightMap
 {
 public:
-	Cell();
-	Cell( float x, float h, float y, float step );
-	Cell( const Vector2D& vec, float h, float step );
-	Cell( const Cell& other );
-	Cell& operator=( const Cell& other );
+    HeightMap();
 
-	//! Сравнивает двумерные вектора. Оператор неравно
-	bool operator != ( const Cell& other ) const;
-	//! Сравнивает двумерные вектора. Оператор равно
-	bool operator == ( const Cell& other ) const;
-	//! Сравнивает двумерные вектора. Оператор меньше
-	bool operator < ( const Cell& other ) const;
+    //! Сравнивает двумерные вектора. Оператор неравно
+    bool operator != (const HeightMap& other) const;
+    //! Сравнивает двумерные вектора. Оператор равно
+    bool operator == (const HeightMap& other) const;
+    //! Сравнивает двумерные вектора. Оператор меньше
+    bool operator < (const HeightMap& other) const;
 
-	Vector2D v;
-	float	h;
-	float step;
+    void init( const std::vector<HMPoint> &points, 
+               const float step, 
+               const Vector2D &min,
+               const Vector2D &max,
+               const float ground = -1000.0f);
+    HMPoint* getPoint( const int col, const int row ) const;
+    int getColumnsNumber() const;
+    int getRowsNumber() const;
+    const Vector2D& getMin() const;
+    const Vector2D& getMax() const;
+    float getCellSize() const;
+    float getGround() const;
+
+private:
+    std::vector<std::vector<std::unique_ptr<HMPoint>>> m_cells;
+    float m_cell_size;
+    Vector2D m_min;
+    Vector2D m_max;
+    int m_rownum;
+    int m_colnum;
+    float m_ground;
 };
 
 #endif

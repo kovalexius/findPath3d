@@ -1,57 +1,20 @@
 ﻿#include <iostream>
-#include <fstream>
-#include <cstdlib>
 
 #include "Scene.h"
 
 using namespace std;
 
-Scene::Scene( const wchar_t* filename, float level )
+Scene::Scene( const float level, const HeightMap &hmap )
 {
-	ground = -50;
-	this->level = level; 
+	m_level = level;
+    m_step = hmap.getCellSize();
+    m_ground = hmap.getGround();
 
-	wstreambuf* backup = wcin.rdbuf();
-	wifstream f;
-	f.open( filename );
-	if( !f.is_open())
-		exit(-1);
-	wcin.rdbuf( f.rdbuf() );
-	
-	set<HeightMapPoint> HMPoints;
-	f >> step;
-	set<float> Xs, Ys;
-	while( !f.eof() )
-	{
-		float x, h, y;
-		f >> x >> h >> y;
-		Xs.insert(x);			// В бинарное дерево 
-		Ys.insert(y);			// для нахождения максимума и минимума
-		HMPoints.insert( HeightMapPoint( x, h, y ) );
-	}
-	wcin.rdbuf(backup);
-
-	//! Определение координат габаритов будущей карты
-	float xmin = *Xs.begin();
-	float ymin = *Ys.begin();
-	float xmax = *( --Xs.end() );
-	float ymax = *( --Ys.end() );
-	float wdt= ( xmax - xmin ), hght = ( ymax-ymin );
-	//! Определение количества ячеек
-	int im = (int)( wdt/step ) + 1;
-	int jm = (int)( hght/step ) + 1;
-	im += (im*step<wdt)?1:0; 
-	jm += (jm*step<hght)?1:0;
-
-	vector<vector<shared_ptr<Cell>>> cell;
-	createCells( cell, HMPoints, xmin, ymin, im, jm );
-  //createCells(HMPoints, xmin, ymin, im, jm, cell);
-
-  std::set<Vector3D> vertexes;
-  std::set< std::shared_ptr<Poly> > triangles;
-  std::set<Vector3D> normals;
-	//! Генерация вершин, полинов и нормалей
-	createMesh( vertexes, triangles, normals, cell, im, jm );
+    std::set<Vector3D> vertexes;
+    std::set< std::shared_ptr<Poly> > triangles;
+    std::set<Vector3D> normals;
+    //! Генерация вершин, полигонов и нормалей
+    createMesh( hmap, vertexes, triangles, normals );
 
 	map< Vector3D*, shared_ptr<set<shared_ptr<Poly>>>> vecToPoly;
 	createLinkPolyes( triangles, vecToPoly );
@@ -62,7 +25,6 @@ Scene::Scene( const wchar_t* filename, float level )
 		objects.insert( curObj );
 	}
 
-	
 	//! Создание MeshObject препятствий
 	vecToPoly.clear();
 	createLinkPolyes( triangles, vecToPoly );
@@ -76,16 +38,13 @@ Scene::Scene( const wchar_t* filename, float level )
 	vecToPoly.clear();
 	triangles.clear();
 
-	int numder = obstacles.size();
-	int number = objects.size();
-
 	//! Создание поверхности воды
 	Vector3D *vec[4];
 	Vector2D tex[4] = { Vector2D( 0, 0 ), Vector2D( 0, 1 ), Vector2D( 1, 0 ), Vector2D( 1, 1 ) };	// Текстурные координаты одинаковы для всех полигонов ( пополигонный тайлинг)
-	auto v1 = vertexes.insert( Vector3D(xmin, level, ymin) );
-	auto v2 = vertexes.insert( Vector3D(xmin, level, ymax + step) );
-	auto v3 = vertexes.insert( Vector3D(xmax + step, level, ymax + step) );
-	auto v4 = vertexes.insert( Vector3D(xmax + step, level, ymin) );
+	auto v1 = vertexes.insert( Vector3D( hmap.getMin().x, level, hmap.getMin().y ) );
+	auto v2 = vertexes.insert( Vector3D( hmap.getMin().x, level, hmap.getMax().y + m_step ) );
+	auto v3 = vertexes.insert( Vector3D( hmap.getMax().x + m_step, level, hmap.getMax().y + m_step ) );
+	auto v4 = vertexes.insert( Vector3D( hmap.getMax().x + m_step, level, hmap.getMin().y ) );
 	vec[0] = const_cast<Vector3D*>( &(*v1.first) ); 
 	vec[1] = const_cast<Vector3D*>( &(*v2.first) ); 
 	vec[2] = const_cast<Vector3D*>( &(*v3.first) ); 
@@ -100,97 +59,51 @@ Scene::Scene( const wchar_t* filename, float level )
 	waterObstacle = shared_ptr< MeshObstacle>( new MeshObstacle( vecToPoly ) );
 }
 
-void Scene::createCells( vector<vector<shared_ptr<Cell>>> &cell, const set<HeightMapPoint> &HMPoints, 
-														const float &xmin, const float &ymin, const int &im, const int &jm )
+void Scene::createMesh( const HeightMap& hmap,
+                        set<Vector3D> &vertexes, 
+                        set<shared_ptr<Poly>> &triangles, 
+                        set<Vector3D> &normals )
 {
-  cell.resize(im);
-  auto it = HMPoints.begin();
-  for( int i = 0; i < im; i++ )
-  {
-    cell[i].resize( jm );
-    for( int j = 0; j < jm; j++ )
+    Vector3D *vec[4];
+    Vector2D tex[4] = { Vector2D( 0, 0 ), Vector2D( 0, 1 ), Vector2D( 1, 0 ), Vector2D( 1, 1 ) };	// Текстурные координаты одинаковы для всех полигонов ( пополигонный тайлинг)
+    int max_i = hmap.getColumnsNumber();
+    int max_j = hmap.getRowsNumber();
+    for( int i = 0; i < max_i; i++ )
     {
-      cell[i][j].reset( );			// Установить нулевой указатель типа Cell
-      if( it == HMPoints.end() )
-        continue;
-      Vector2D v = it->v;
-      if( v.x >= i*step + xmin && v.x < (i+1)*step + xmin && 
-          v.y >= j*step + ymin && v.y < (j+1)*step + ymin )
-      {
-        float h = it->h;
-        if( h == level )
-          h += step * 0.0001f;
-        cell[i][j] = shared_ptr<Cell>( new Cell( i*step + xmin, h, j*step + ymin, step ) );	// Установить ненулевой указатель типа Cell если препятсвие существует в данной ячейке
-        while (it != HMPoints.end() && it->v.x < (i + 1)*step + xmin && it->v.y < (j + 1)*step + ymin )
+        for( int j = 0; j < max_j; j++ )
         {
-          it++;
-        }
-      }
-    }
-  }
-}
+            HMPoint *pnt = hmap.getPoint(i, j);
+            if( pnt )
+            {
+                auto v1 = vertexes.insert( Vector3D( pnt->m_coord.x,      m_ground,           pnt->m_coord.y ) );
+                auto v2 = vertexes.insert( Vector3D( pnt->m_coord.x,      pnt->m_height,      pnt->m_coord.y ) );
+                auto v3 = vertexes.insert( Vector3D( pnt->m_coord.x+m_step,  m_ground,        pnt->m_coord.y ) );
+                auto v4 = vertexes.insert( Vector3D( pnt->m_coord.x+m_step,  pnt->m_height,   pnt->m_coord.y) );
+                auto v5 = vertexes.insert( Vector3D( pnt->m_coord.x,       m_ground,          pnt->m_coord.y+m_step ) );
+                auto v6 = vertexes.insert( Vector3D( pnt->m_coord.x,       pnt->m_height,     pnt->m_coord.y+m_step ) );
+                auto v7 = vertexes.insert( Vector3D( pnt->m_coord.x+m_step,  m_ground,        pnt->m_coord.y+m_step ) );
+                auto v8 = vertexes.insert( Vector3D( pnt->m_coord.x+m_step,  pnt->m_height,   pnt->m_coord.y+m_step ) );
 
-void Scene::createCells( const std::set<HeightMapPoint> &HMPoints, const float &xmin, const float &ymin,
-                  const int &im, const int &jm, std::vector<std::vector<std::shared_ptr<Cell>>> &cell )
-{
-  cell.resize(im);
-  for (auto it = HMPoints.begin(); it != HMPoints.end(); it++)
-  {
-    int i = (it->v.x - xmin) / step;
-    int j = (it->v.y - ymin) / step;
-    if (cell[i].size() == 0)
-      cell[i].resize(jm);
+                vec[0] = const_cast<Vector3D*>( &(*v2.first) ); 
+                vec[1] = const_cast<Vector3D*>( &(*v6.first) ); 
+                vec[2] = const_cast<Vector3D*>( &(*v8.first) ); 
+                vec[3] = const_cast<Vector3D*>( &(*v4.first) );
+                auto norm = normals.insert( Vector3D( 0, 1, 0 ) );
+                shared_ptr<Poly> tri = shared_ptr<Poly>( new Poly( vec, tex, 4, &(*norm.first) ) );
+                triangles.insert( tri );
 
-    float h = it->h;
-    if (h == level)
-      h += step * 0.0001f;
+                vec[0] = const_cast<Vector3D*>( &(*v1.first) ); 
+                vec[1] = const_cast<Vector3D*>( &(*v5.first) );
+                vec[2] = const_cast<Vector3D*>( &(*v7.first) );
+                vec[3] = const_cast<Vector3D*>( &(*v3.first) );
+                norm = normals.insert( Vector3D( 0, -1, 0 ) );
+                tri = shared_ptr<Poly>( new Poly( vec, tex, 4, &(*norm.first) ) );
+                triangles.insert( tri );
 
-    if (cell[i][j] == nullptr)
-      cell[i][j] = shared_ptr<Cell>(new Cell(i*step + xmin, h, j*step + ymin, step));
-  }
-}
-
-void Scene::createMesh( set<Vector3D> &vertexes, set<shared_ptr<Poly>> &triangles, set<Vector3D> &normals, 
-                        const vector<vector<shared_ptr<Cell>>> &cell, const int &im, const int &jm )
-{
-	Vector3D *vec[4];
-	Vector2D tex[4] = { Vector2D( 0, 0 ), Vector2D( 0, 1 ), Vector2D( 1, 0 ), Vector2D( 1, 1 ) };	// Текстурные координаты одинаковы для всех полигонов ( пополигонный тайлинг)
-	for( int i = 0; i < im; i++ )
-	{
-    if (cell[i].size() == 0)
-      continue;
-		for( int j = 0; j < jm; j++ )
-		{
-			if( cell[i][j] )
-			{
-				auto v1 = vertexes.insert( Vector3D( cell[i][j]->v.x, ground, cell[i][j]->v.y ) );
-				auto v2 = vertexes.insert( Vector3D( cell[i][j]->v.x, cell[i][j]->h, cell[i][j]->v.y ) );
-				auto v3 = vertexes.insert( Vector3D( cell[i][j]->v.x + step, ground, cell[i][j]->v.y ) );
-				auto v4 = vertexes.insert( Vector3D( cell[i][j]->v.x + step, cell[i][j]->h, cell[i][j]->v.y) );
-				auto v5 = vertexes.insert( Vector3D( cell[i][j]->v.x, ground, cell[i][j]->v.y + step ) );
-				auto v6 = vertexes.insert( Vector3D( cell[i][j]->v.x, cell[i][j]->h, cell[i][j]->v.y + step ) );
-				auto v7 = vertexes.insert( Vector3D( cell[i][j]->v.x + step, ground, cell[i][j]->v.y + step ) );
-				auto v8 = vertexes.insert( Vector3D( cell[i][j]->v.x + step, cell[i][j]->h, cell[i][j]->v.y + step ) );
-
-				vec[0] = const_cast<Vector3D*>( &(*v2.first) ); 
-				vec[1] = const_cast<Vector3D*>( &(*v6.first) ); 
-				vec[2] = const_cast<Vector3D*>( &(*v8.first) ); 
-				vec[3] = const_cast<Vector3D*>( &(*v4.first) );
-				auto norm = normals.insert( Vector3D( 0, 1, 0 ) );
-				shared_ptr<Poly> tri = shared_ptr<Poly>( new Poly( vec, tex, 4, &(*norm.first) ) );
-				triangles.insert( tri );
-				
-				vec[0] = const_cast<Vector3D*>( &(*v1.first) ); 
-				vec[1] = const_cast<Vector3D*>( &(*v5.first) );
-				vec[2] = const_cast<Vector3D*>( &(*v7.first) );
-				vec[3] = const_cast<Vector3D*>( &(*v3.first) );
-				norm = normals.insert( Vector3D( 0, -1, 0 ) );
-				tri = shared_ptr<Poly>( new Poly( vec, tex, 4, &(*norm.first) ) );
-				triangles.insert( tri );
-
-				if( j>0 )
-				{
-					if( !cell[i][j-1] )
+                if( j>0 )
+                {
+                    HMPoint *pntj1 = hmap.getPoint(i,j-1);
+                    if( !pntj1 )
 					{
 						vec[0] = const_cast<Vector3D*>( &(*v1.first) ); 
 						vec[1] = const_cast<Vector3D*>( &(*v2.first) );
@@ -202,24 +115,24 @@ void Scene::createMesh( set<Vector3D> &vertexes, set<shared_ptr<Poly>> &triangle
 					}
 					else
 					{
-						//! Доборочная грань вниз
-						if( cell[i][j]->h > cell[i][j-1]->h )
-						{
+                        //! Доборочная грань вниз
+                        if( pnt->m_height > pntj1->m_height )
+                        {
 							vec[0] = const_cast<Vector3D*>( &(*v2.first) );
 							vec[1] = const_cast<Vector3D*>( &(*v4.first) );
-							vec[2] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[1]->x, cell[i][j-1]->h, vec[1]->z ) ) ) );
-							vec[3] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[0]->x, cell[i][j-1]->h, vec[0]->z ) ) ) );
+							vec[2] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[1]->x, pntj1->m_height, vec[1]->z ) ) ) );
+							vec[3] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[0]->x, pntj1->m_height, vec[0]->z ) ) ) );
 							//! Нормаль смотрит вниз
 							norm = normals.insert( Vector3D(0, 0, -1) );
 							shared_ptr<Poly> tri( new Poly( vec, tex, 4, &(*norm.first) ) );
 							triangles.insert( tri );
 						}
-						if( cell[i][j]->h < cell[i][j-1]->h )
+                        if( pnt->m_height < pntj1->m_height)
 						{
 							vec[0] = const_cast<Vector3D*>( &(*v2.first) );
 							vec[1] = const_cast<Vector3D*>( &(*v4.first) );
-							vec[2] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[1]->x, cell[i][j-1]->h, vec[1]->z ) ) ) );
-							vec[3] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[0]->x, cell[i][j-1]->h, vec[0]->z ) ) ) );
+							vec[2] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[1]->x, pntj1->m_height, vec[1]->z ) ) ) );
+							vec[3] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[0]->x, pntj1->m_height, vec[0]->z ) ) ) );
 							//! Нормаль смотрит вверх
 							norm = normals.insert( Vector3D(0, 0, 1) );
 							shared_ptr<Poly> tri( new Poly( vec, tex, 4, &(*norm.first) ) );
@@ -227,9 +140,10 @@ void Scene::createMesh( set<Vector3D> &vertexes, set<shared_ptr<Poly>> &triangle
 						}
 					}
 				}
-        if ( i > 0 && cell[i-1].size() > 0 )
+                if ( i>0 )
 				{
-					if( !cell[i-1][j] )
+                    HMPoint *pnti1 = hmap.getPoint(i-1,j);
+					if( !pnti1 )
 					{
 						vec[0] = const_cast<Vector3D*>( &(*v1.first) );
 						vec[1] = const_cast<Vector3D*>( &(*v2.first) );
@@ -242,23 +156,23 @@ void Scene::createMesh( set<Vector3D> &vertexes, set<shared_ptr<Poly>> &triangle
 					else
 					{
 						//! Доборочная грань влево
-						if( cell[i][j]->h > cell[i-1][j]->h )
+                        if( pnt->m_height > pnti1->m_height )
 						{
 							vec[0] = const_cast<Vector3D*>( &(*v2.first) );
 							vec[1] = const_cast<Vector3D*>( &(*v6.first) );
-							vec[2] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[1]->x, cell[i-1][j]->h, vec[1]->z ) ) ) );
-							vec[3] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[0]->x, cell[i-1][j]->h, vec[0]->z ) ) ) );
+							vec[2] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[1]->x, pnti1->m_height, vec[1]->z ) ) ) );
+							vec[3] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[0]->x, pnti1->m_height, vec[0]->z ) ) ) );
 							//! Нормаль смотрит влево
 							norm = normals.insert( Vector3D(-1, 0, 0) );
 							shared_ptr<Poly> tri( new Poly( vec, tex, 4, &(*norm.first) ) );
 							triangles.insert( tri );
 						}
-						if( cell[i][j]->h < cell[i-1][j]->h )
+                        if ( pnt->m_height < pnti1->m_height )
 						{
 							vec[0] = const_cast<Vector3D*>( &(*v2.first) );
 							vec[1] = const_cast<Vector3D*>( &(*v6.first) );
-							vec[2] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[1]->x, cell[i-1][j]->h, vec[1]->z ) ) ) );
-							vec[3] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[0]->x, cell[i-1][j]->h, vec[0]->z ) ) ) );
+							vec[2] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[1]->x, pnti1->m_height, vec[1]->z ) ) ) );
+							vec[3] = const_cast<Vector3D*>( &(*vertexes.find( Vector3D( vec[0]->x, pnti1->m_height, vec[0]->z ) ) ) );
 							//! Нормаль смотрит вправо
 							norm = normals.insert( Vector3D( 1, 0, 0 ) );
 							shared_ptr<Poly> tri( new Poly( vec, tex, 4, &(*norm.first) ) );
@@ -266,9 +180,9 @@ void Scene::createMesh( set<Vector3D> &vertexes, set<shared_ptr<Poly>> &triangle
 						}
 					}
 				}
-				if( i < im-1 )
+				if( i < hmap.getColumnsNumber()-1 )
 				{
-					if( cell[i+1].size() > 0 && !cell[i+1][j] )
+					if( !hmap.getPoint(i+1,j) )
 					{
 						vec[0] = const_cast<Vector3D*>( &(*v3.first) ); 
 						vec[1] = const_cast<Vector3D*>( &(*v4.first) ); 
@@ -279,22 +193,22 @@ void Scene::createMesh( set<Vector3D> &vertexes, set<shared_ptr<Poly>> &triangle
 						triangles.insert( tri );
 					}
 				}
-				if( j < jm-1 )
-				{
-					if( !cell[i][j+1] )
-					{
-						vec[0] = const_cast<Vector3D*>( &(*v5.first) ); 
-						vec[1] = const_cast<Vector3D*>( &(*v6.first) ); 
-						vec[2] = const_cast<Vector3D*>( &(*v8.first) ); 
-						vec[3] = const_cast<Vector3D*>( &(*v7.first) );
-						norm = normals.insert( Vector3D(0, 0, 1) );
-						shared_ptr<Poly> tri( new Poly( vec, tex, 4, &(*norm.first) ) );
-						triangles.insert( tri );
-					}
-				}
-			}
-		}
-	}
+                if( j < hmap.getRowsNumber()-1 )
+                {
+                    if( !hmap.getPoint(i,j+1) )
+                    {
+                        vec[0] = const_cast<Vector3D*>( &(*v5.first) ); 
+                        vec[1] = const_cast<Vector3D*>( &(*v6.first) ); 
+                        vec[2] = const_cast<Vector3D*>( &(*v8.first) ); 
+                        vec[3] = const_cast<Vector3D*>( &(*v7.first) );
+                        norm = normals.insert( Vector3D(0, 0, 1) );
+                        shared_ptr<Poly> tri( new Poly( vec, tex, 4, &(*norm.first) ) );
+                        triangles.insert( tri );
+                    }
+                }
+            }
+        }
+    }
 }
 
 void Scene::createLinkPolyes( const set<shared_ptr<Poly>> &triangles, 
@@ -451,7 +365,7 @@ void Scene::initGraph( map< Vector3D, set<Vector3D> > &graph, map< Vector3D, dou
 		for( auto edg = (*obs)->edgeToTri.begin(); edg != (*obs)->edgeToTri.end(); edg++ )
 		{
 			Vector3D vec;
-			if( edg->first.GetXZ( level, vec ) )
+			if( edg->first.GetXZ( m_level, vec ) )
 				allVertexes.insert( vec );
 		}
 
@@ -475,8 +389,8 @@ bool Scene::FindPathDijkstra( list<Vector3D> &result, const Vector3D& src, const
 bool Scene::FindPath( list<Vector3D> &result, const Vector3D& source, const Vector3D& dest )
 {
 	Vector3D src = source, dst = dest;
-	src.y = level;
-	dst.y = level;
+	src.y = m_level;
+	dst.y = m_level;
 
 	
 
@@ -546,7 +460,7 @@ bool Scene::bypassObject( pair< float, list<Vector3D>> &result, shared_ptr<Poly>
                         Edge * const &edg, const Vector3D & src, const Vector3D &dest )
 {
     Vector3D point, pointNext;			//! Предыдущая точка, следущая точка
-    edg->GetXZ( level, point );
+    edg->GetXZ( m_level, point );
     shared_ptr<Poly> curFace = poly;
     Edge *curEdg = const_cast<Edge*>( edg );
     shared_ptr<MeshObstacle> curObj = obj;
@@ -555,7 +469,7 @@ bool Scene::bypassObject( pair< float, list<Vector3D>> &result, shared_ptr<Poly>
 
     bool isFree = true;   //! Показывает не пересекает ли отрезок от src до грани текущий объект
     bool isBypassing = true; //! Закончен ли обход объекта
-    bool isOnce = true;
+
     pointNext = point;
     set< shared_ptr<Poly> > passedPolyes;
     passedPolyes.insert( curFace );
@@ -578,7 +492,7 @@ bool Scene::bypassObject( pair< float, list<Vector3D>> &result, shared_ptr<Poly>
                                                     if( curEdg != (*itE) )
                                                     {
                                                             curEdg = (*itE);
-                                                            curEdg->GetXZ( level, pointNext );									// Обновление точки
+                                                            curEdg->GetXZ( m_level, pointNext );									// Обновление точки
                                                             if( !isFree )
                                                                     listVec.push_back( point );
                                                             break;

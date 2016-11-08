@@ -2,13 +2,12 @@
 #define GLMAPVIEW_H
 
 #include <QGLWidget>
-
 #include <QtCore>
 #include <QtGui>
 #include <list>
 #include <ctime>
 
-#include "../kfp_algo/Geometry.h"
+#include <Geometry.h>
 #include "../kfp_algo/MeshObject.h"
 
 #include "glExtInit.h"

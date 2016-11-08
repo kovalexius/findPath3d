@@ -1,4 +1,5 @@
 #include "findpath3d.h"
+#include "fileMapReader.h"
 
 using namespace std;
 
@@ -31,8 +32,8 @@ findPath3D::~findPath3D()
 void findPath3D::onMapOpen()
 {
 	QString str;
-	m_filePath = QFileDialog::getOpenFileName(this,
-     tr("Open MAP"), "", tr("MAP (*.map)"));
+    m_filePath = QFileDialog::getOpenFileName( this, tr("Open MAP"),
+                                               "",   tr("MAP (*.map)") );
 	if(!m_filePath.isEmpty())
 		ui.label->setText( m_filePath );
 }
@@ -56,18 +57,27 @@ void findPath3D::onFindPath()
 
 void findPath3D::onMapCreate()
 {
-    QString str = ui.lineEdit->text();
-    float h = str.toFloat();
+  QString str = ui.lineEdit->text();
+  float h = str.toFloat();
 
-    std::wstring filePath( (wchar_t*)m_filePath.unicode());
-    scn = new Scene( filePath.c_str(), h );
+  HeightMap hmap;
+#ifdef _WIN32
+  std::wstring filePath( (wchar_t*)m_filePath.unicode());
+  readMap(filePath.c_str(), hmap);
+#else
+  std::string filePath( (const char*)m_filePath.toLocal8Bit().data() );
+  readMap(filePath.c_str(), hmap);
+#endif
+  
+  
+  scn = new Scene( h, hmap );
 
-    for( auto it = scn->objects.begin(); it != scn->objects.end(); it++ )
-		vw->AddObject( *it );
-	for( auto it = scn->obstacles.begin(); it != scn->obstacles.end(); it++ )
-		vw->AddObstacle( *it );
+  for( auto it = scn->objects.begin(); it != scn->objects.end(); it++ )
+    vw->AddObject( *it );
+  for( auto it = scn->obstacles.begin(); it != scn->obstacles.end(); it++ )
+    vw->AddObstacle( *it );
 
-	vw->AddWaterObject( scn->waterMesh );
-	vw->AddWaterObstacle( scn->waterObstacle );
-	vw->StartRender();
+  vw->AddWaterObject( scn->waterMesh );
+  vw->AddWaterObstacle( scn->waterObstacle );
+  vw->StartRender();
 }

@@ -11,8 +11,9 @@
 //------------------------------------------------------------------------------
 #ifndef Scene_H
 #define Scene_H
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+
+
+
 #include <set>
 #include <map>
 #include <list>
@@ -21,13 +22,11 @@
 #include "Geometry.h"
 #include "MeshObject.h"
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+
 //------------------------------------------------------------------------------
 //------------------------------- class Scene  ---------------------------------
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 //! Класс Scene генерирующий препятствия
@@ -37,30 +36,24 @@ class Scene
 {
 public:
 	//! Конструктор класса, принимающий параметры: имя файла, уровень воды
-	Scene( const wchar_t* filename, float level );
+  Scene( const float level, const HeightMap &hmap );
 	~Scene();
-	//! Шаг или ширина ячейки
-	float step;
-	//! Координата по Y определяющая нижний уровень кубообразных объектов
-	float ground;
-	//! Уровень воды
-	float level;
 
 	//! Контейнер, содержащий список всех потенциальных объектов-препятствий.
-        std::set< std::shared_ptr<MeshObject> > objects;
+  std::set< std::shared_ptr<MeshObject> > objects;
 	//! Контейнер, содержащий актуальный список объектов-препятствий для заданного уровня воды.
-        std::set< std::shared_ptr<MeshObstacle> > obstacles;
+  std::set< std::shared_ptr<MeshObstacle> > obstacles;
 	//! Объект содержащий поверхность воды
-        std::shared_ptr<MeshObject> waterMesh;
-        std::shared_ptr<MeshObstacle> waterObstacle;
+  std::shared_ptr<MeshObject> waterMesh;
+  std::shared_ptr<MeshObstacle> waterObstacle;
 	//! Найти путь
   /*! Вход: Vector3D начала пути
 						Vector3D конца пути
 			Выход:
 						result - список промежуточных точек пути list<Vector3D>
    *  @return  true если возможно проложить маршрут, иначе false */
-         bool FindPath( std::list<Vector3D> &result, const Vector3D& source, const Vector3D& dest );
-         bool FindPathDijkstra( std::list<Vector3D> &result, const Vector3D& source, const Vector3D& dest );
+  bool FindPath( std::list<Vector3D> &result, const Vector3D& source, const Vector3D& dest );
+  bool FindPathDijkstra( std::list<Vector3D> &result, const Vector3D& source, const Vector3D& dest );
 private:
 	//! Найти ближайшее к точке P0 пересечение луча с объектами-препятствиями
 	/*! Пересечение исключает ребра полигонов.
@@ -70,7 +63,7 @@ private:
 							face - грань пересечения
 							obj - объект пересечения
 	*		@return	 Возвращает true если было перечение, иначе false	*/
-        bool HalfIntersectRay( Vector3D &crossP, std::shared_ptr<Poly> &face, std::shared_ptr<MeshObstacle> &obj,
+  bool HalfIntersectRay( Vector3D &crossP, std::shared_ptr<Poly> &face, std::shared_ptr<MeshObstacle> &obj,
                                const Vector3D &P0, const Vector3D &P1 );
 	//! Найти ближайшее к точке P0 пересечение луча с объектами-препятствиями
 	/*! Пересечение засчитывается, если луч прошел полигон объекта а также если попал на ребро полигона.
@@ -80,7 +73,7 @@ private:
 							face - грань пересечения
 							obj - объект пересечения
 	*		@return	 Возвращает true если было перечение, иначе false	*/
-        bool FullIntersectRay( Vector3D &crossP, std::shared_ptr<Poly> &face,
+  bool FullIntersectRay( Vector3D &crossP, std::shared_ptr<Poly> &face,
                                std::shared_ptr<MeshObstacle> &obj, const Vector3D &P0, const Vector3D &P1 );
 	//! Найти ближайшее к точке P0 пересечение отрезка с объектами-препятствиями
 	/*! Пересечение исключает ребра полигонов, но срабатывает, если отрезок касается полигона своим началом или концом
@@ -90,7 +83,7 @@ private:
 							face - грань пересечения
 							obj - объект пересечения
 	*		@return	 Возвращает true если было перечение, иначе false	*/
-        bool HalfIntersect( Vector3D &crossP, std::shared_ptr<Poly> &face, std::shared_ptr<MeshObstacle> &obj,
+  bool HalfIntersect( Vector3D &crossP, std::shared_ptr<Poly> &face, std::shared_ptr<MeshObstacle> &obj,
                             const Vector3D &P0, const Vector3D &P1 );
 
 	//! Найти ближайшее к точке P0 пересечение отрезка с объектами-препятствиями
@@ -103,7 +96,7 @@ private:
 							obj - объект пересечения
 	*		@return	 Возвращает true если было перечение, иначе false	*/
 
-        bool FullIntersect( Vector3D &crossP, std::shared_ptr<Poly> &face, std::shared_ptr<MeshObstacle> &obj,
+  bool FullIntersect( Vector3D &crossP, std::shared_ptr<Poly> &face, std::shared_ptr<MeshObstacle> &obj,
                             const Vector3D &P0, const Vector3D &P1 );
 	//! Найти ближайшее к точке P0 пересечение отрезка с объектами-препятствиями
 	/*! Пересечение срабатывает если отрезок проходит через ребро полигона. 
@@ -114,7 +107,7 @@ private:
 							face - грань пересечения
 							obj - объект пересечения
 	*		@return	 Возвращает true если было перечение, иначе false	*/
-        bool FullIntersectExcludingBoth( Vector3D &crossP, std::shared_ptr<Poly> &face, std::shared_ptr<MeshObstacle> &obj,
+  bool FullIntersectExcludingBoth( Vector3D &crossP, std::shared_ptr<Poly> &face, std::shared_ptr<MeshObstacle> &obj,
                                          const Vector3D &P0, const Vector3D &P1 );
 
 	//! Определить, было ли пересечение отрезка с объектами-препятствиями
@@ -139,24 +132,12 @@ private:
 						result - структура типа pair<float, list<Vector3D>>, где первая переменная пары - общий путь обхода, 
 						а вторая переменная это список с точками траектории обхода.
 	*		@return	 Возвращает true если обход можно выполнить, иначе false	*/	
-        bool bypassObject( std::pair<float, std::list<Vector3D>> &result, std::shared_ptr<Poly> &outFace,
-                           Edge *&outEdg, const std::shared_ptr<MeshObstacle> &obj, const std::shared_ptr<Poly> &poly,
-                           Edge * const &edg, const Vector3D & src, const Vector3D &dest );
-        void initGraph( std::map< Vector3D, std::set<Vector3D> > &graph, std::map< Vector3D, double > &metki );
-        bool CheckPath( std::list<Vector3D> &result, const Vector3D& source, const Vector3D& dest );
+  bool bypassObject( std::pair<float, std::list<Vector3D>> &result, std::shared_ptr<Poly> &outFace,
+                     Edge *&outEdg, const std::shared_ptr<MeshObstacle> &obj, const std::shared_ptr<Poly> &poly,
+                     Edge * const &edg, const Vector3D & src, const Vector3D &dest );
+  void initGraph( std::map< Vector3D, std::set<Vector3D> > &graph, std::map< Vector3D, double > &metki );
+  bool CheckPath( std::list<Vector3D> &result, const Vector3D& source, const Vector3D& dest );
 
-	//! Создает двухмерный массив объектов типа Cell 
-	/*!	Вход: HMPoints - контейнер объектов типа HeightMapPoint
-						xmin - координата начала карты по x
-						ymin - координата начала карты по y
-						im - количество ячеек по x
-						jm - количество ячеек по y
-			Выход:
-						cell - двумерный массив объектов типа Cell */
-    void createCells( std::vector<std::vector<std::shared_ptr<Cell>>> &cell, const std::set<HeightMapPoint> &HMPoints,
-                      const float &xmin, const float &ymin, const int &im, const int &jm );
-    void createCells( const std::set<HeightMapPoint> &HMPoints, const float &xmin, const float &ymin,
-                      const int &imax, const int &jmax, std::vector<std::vector<std::shared_ptr<Cell>>> &cell );
 
 	//! Создает параллелепипедную поверхность всех ячеек
 	/*!	Вход: cell - двумерный массив объектов Cell
@@ -166,22 +147,32 @@ private:
 						vertexes - набор всех вершин поверхности
 						triangles - набор всех полигонов
 						normals - набор нормалей к полигонам */
-        void createMesh( std::set<Vector3D> &vertexes, std::set<std::shared_ptr<Poly>> &triangles, std::set<Vector3D> &normals,
-                         const std::vector<std::vector<std::shared_ptr<Cell>>> &cell, const int &im, const int &jm );
+  void createMesh( const HeightMap &hmap,
+                   std::set<Vector3D> &vertexes, 
+                   std::set<std::shared_ptr<Poly>> &triangles, 
+                   std::set<Vector3D> &normals );
 
 	//! Создает список вершин с привязанными к каждому группе полигонов
 	/*! Вход: triangles - список всех полигонов
 			Выход:
 						vecToPoly - map, ключом которому служит указатель на вершины значением которого являются списки полигонов  */
-        void createLinkPolyes( const std::set<std::shared_ptr<Poly>> &triangles,
+  void createLinkPolyes( const std::set<std::shared_ptr<Poly>> &triangles,
                                 std::map<Vector3D*, std::shared_ptr<std::set<std::shared_ptr<Poly>>>> &vecToPoly );
 
+private:
 	//! Контейнер, содержащий убывающий список непройденных препятствий.
-        std::set< std::shared_ptr<MeshObstacle> > hotObjs;
+  std::set< std::shared_ptr<MeshObstacle> > hotObjs;
 
-        std::shared_ptr<Poly> lastPoly;
+  std::shared_ptr<Poly> lastPoly;
 	Edge *lastEdg;
-        std::shared_ptr< MeshObstacle > lastObj;
+  std::shared_ptr< MeshObstacle > lastObj;
+
+  //! Шаг или ширина ячейки
+  float m_step;
+  //! Координата по Y определяющая нижний уровень кубообразных объектов
+  float m_ground;
+  //! Уровень воды
+  float m_level;
 };
 
 #endif

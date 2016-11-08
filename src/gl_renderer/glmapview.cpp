@@ -10,13 +10,13 @@ void checkOpenGLerror()
         std::cout << "OpenGl error! - " << gluErrorString(errCode);
 }
 
-char* filetobuf(char *file)
+char* filetobuf( const std::string &file )
 {
     FILE *fptr;
     long length;
     char *buf;
  
-    fptr = fopen( file, "rb" ); // Открыть файл на чтение
+    fptr = fopen( file.c_str(), "rb" ); // Открыть файл на чтение
     if ( !fptr ) // выйти если ошибка при инициализации fptr
         return NULL;
     fseek( fptr, 0, SEEK_END ); // Переместиться в конец файла
@@ -53,6 +53,27 @@ void shaderLog(unsigned int shader)
   }
 }
 
+//-----------Создание шейдеров из файла и компилиция----------
+void create_shader( const std::string & vert_,
+                    const std::string & frag_,
+                    GLuint & vertexShader,
+                    GLuint & fragmentShader
+                  )
+{
+    GLchar *vertexSource = filetobuf("Land.vert");
+    GLchar *fragmentSource = filetobuf("Land.frag");
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(vertexShader, 1, (const GLchar**)&vertexSource, 0);
+    glShaderSource(fragmentShader, 1, (const GLchar**)&fragmentSource, 0);
+    free(vertexSource);
+    free(fragmentSource);
+    glCompileShader(vertexShader);
+    shaderLog(vertexShader);
+    glCompileShader(fragmentShader);
+    shaderLog(fragmentShader);
+}
+
 GLMapView::GLMapView(QWidget *parent): m_time(0), m_dtime(1)
 {
 	QGLFormat glFormat;
@@ -61,7 +82,7 @@ GLMapView::GLMapView(QWidget *parent): m_time(0), m_dtime(1)
 	glFormat.setGreenBufferSize(8);
 	glFormat.setBlueBufferSize(8);
 	glFormat.setAlphaBufferSize(8);
-        ::QGLWidget(glFormat,parent);
+    ::QGLWidget(glFormat,parent);
 
 	waterTriVBO = 0;
 	waterNormVBO = 0;
@@ -165,7 +186,7 @@ void GLMapView::initObjectsVBO()
 		for( auto itTri = curSet.begin(); itTri != curSet.end(); itTri++ )
 		{
 			auto curPoly = (*itTri).get();
-			for( int i = 1; i < curPoly->v.size() - 1; i++ )
+			for( size_t i = 1; i < curPoly->v.size() - 1; i++ )
 			{
 				norms.push_back( curPoly->normal->x );
 				norms.push_back( curPoly->normal->y );
@@ -229,20 +250,9 @@ void GLMapView::initObjectsVBO()
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
 	//-----------Создание шейдеров и компилиция----------
-	GLchar *vertexSource, *fragmentSource;
-	vertexSource = filetobuf("Land.vert");
-	fragmentSource = filetobuf("Land.frag");
-	GLuint vertexShader, fragmentShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(vertexShader, 1, (const GLchar**)&vertexSource, 0);
-	glShaderSource(fragmentShader, 1, (const GLchar**)&fragmentSource, 0);
-	free(vertexSource);
-	free(fragmentSource);
-	glCompileShader(vertexShader);
-	shaderLog(vertexShader);
-	glCompileShader(fragmentShader);
-	shaderLog(fragmentShader);
+    GLuint vertexShader, fragmentShader;
+    create_shader( "Land.vert", "Land.frag", vertexShader, fragmentShader );
+
 	//---------------------------------------------------
 	//--------Создание программы шейдера и линковка------
 	objShaderProgram = glCreateProgram();
@@ -278,7 +288,7 @@ void GLMapView::initWaterVBO()
 	for( auto itTri = curSet.begin(); itTri != curSet.end(); itTri++ )
 	{
 		auto curPoly = (*itTri).get();
-                for( size_t i = 1; i < curPoly->v.size() - 1; i++ )
+        for( size_t i = 1; i < curPoly->v.size() - 1; i++ )
 		{
 			norms.push_back( curPoly->normal->x );
 			norms.push_back( curPoly->normal->y );
@@ -340,20 +350,8 @@ void GLMapView::initWaterVBO()
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
 	//-----------Создание шейдеров и компилиция----------
-	GLchar *vertexSource, *fragmentSource;
-	vertexSource = filetobuf("Water.vert");
-	fragmentSource = filetobuf("Water.frag");
-	GLuint vertexShader, fragmentShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource( vertexShader, 1, (const GLchar**)&vertexSource, 0 );
-	glShaderSource( fragmentShader, 1, (const GLchar**)&fragmentSource, 0 );
-	free(vertexSource);
-	free(fragmentSource);
-	glCompileShader(vertexShader);
-	shaderLog(vertexShader);
-	glCompileShader(fragmentShader);
-	shaderLog(fragmentShader);
+    GLuint vertexShader, fragmentShader;
+    create_shader( "Water.vert", "Water.frag", vertexShader, fragmentShader );
 	//---------------------------------------------------
 	//--------Создание программы шейдера и линковка------
 	waterShaderProgram = glCreateProgram();
@@ -394,9 +392,9 @@ void GLMapView::renderFrame()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	GLfloat lightPos0[4]={ pCamera.x, pCamera.y, pCamera.z, 1.0 };
+	GLfloat lightPos0[4] = { (GLfloat)pCamera.x, (GLfloat)pCamera.y, (GLfloat)pCamera.z, 1.0 };
 	Vector3D dir = tCamera - pCamera;
-	GLfloat lightDir0[3]={ dir.x, dir.y, dir.z };
+	GLfloat lightDir0[3]={ (GLfloat)dir.x, (GLfloat)dir.y, (GLfloat)dir.z };
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos0);				//
 	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION,lightDir0);	//
 
@@ -428,9 +426,9 @@ void GLMapView::initializeGL()
 #endif
 
 	calculateCamera();
-	GLfloat lightPos0[4]={ pCamera.x, pCamera.y, pCamera.z, 1.0 };
-	Vector3D dir = tCamera - pCamera;
-	GLfloat lightDir0[3]={ dir.x, dir.y, dir.z };
+	//GLfloat lightPos0[4]={ pCamera.x, pCamera.y, pCamera.z, 1.0 };
+	//Vector3D dir = tCamera - pCamera;
+	//GLfloat lightDir0[3]={ dir.x, dir.y, dir.z };
 	//glLightfv(GL_LIGHT0, GL_POSITION, lightPos0);				//
 	//glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION,lightDir0);	//
 	//glEnable(GL_LIGHTING);		// Свет
@@ -608,7 +606,7 @@ void GLMapView::drawObstacles()
 		for( auto itTri = curSet.begin(); itTri != curSet.end(); itTri++ )
 		{
 			auto curPoly = (*itTri).get();
-			for( int i = 1; i < curPoly->v.size() - 1; i++ )
+			for( size_t i = 1; i < curPoly->v.size() - 1; i++ )
 			{
 				glBegin( GL_POLYGON );
 				glNormal3f( curPoly->normal->x, curPoly->normal->y, curPoly->normal->z );
@@ -632,7 +630,7 @@ void GLMapView::drawObstaclesEdgesAndTri()
 		{
 			auto curSet = itMap->second;
 			int number = curSet->size();
-			if( curSet->size() <= 2)
+			if( number <= 2)
 			{
 				Edge *edg = const_cast<Edge*>( &(itMap->first) );
 				glDisable(GL_LIGHTING);		// Свет
@@ -675,7 +673,7 @@ void GLMapView::drawObstaclesEdgesAndTri()
 
 void GLMapView::drawWater()
 {
-	GLfloat color[4] = { 0.0, 0.0, 0.8, 0.5 };
+	//GLfloat color[4] = { 0.0, 0.0, 0.8, 0.5 };
 	//glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color );
 
 	glEnableClientState( GL_VERTEX_ARRAY );
@@ -770,8 +768,6 @@ void GLMapView::drawPath()
 		glVertex3f( it->x, it->y, it->z );
 	}
 	glEnd();
-
-	auto n = checkPoints.size();
 
 	glEnable(GL_LIGHTING);		// Свет
 	glEnable(GL_LIGHT0);			// включить назад

@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "widgets/findpath3d.h"
-#include "kfp_algo/Geometry.h"
+#include <Geometry.h>
 
 class AA
 {
@@ -14,12 +14,7 @@ public:
 
 int main(int argc, char *argv[])
 {
-    int i;
-    //int k(0);
-
-    AA *aa = (AA*) malloc( sizeof(AA) );
-    new (aa) AA();
-
+    /*
     Vector3D A( -2, 1, 4 );
     Vector3D B( -2, 3, 1 );
 
@@ -43,6 +38,14 @@ int main(int argc, char *argv[])
     D = Vector3D( 5, 0, 6 );
 
     res = twoDirectDistanceFast( A, B, C, D );
+    */
+    
+    Vector3D point_plane(0,0,0);
+    Vector3D normal_plane(1,0,0);
+    Vector3D dst;
+    Vector3D A(6,0,0);
+    Vector3D B(1,0,0);
+    std::cout << " CrossPointLineAndPlane() = " << CrossPointLineAndPlane( &dst, point_plane, normal_plane, A, B ) << std::endl;
 
     QApplication a(argc, argv);
     findPath3D w;
