@@ -1,4 +1,4 @@
-#ifndef GLMAPVIEW_H
+п»ї#ifndef GLMAPVIEW_H
 #define GLMAPVIEW_H
 
 #include <QGLWidget>
@@ -72,24 +72,24 @@ private:
 	GLsizei countObjects;
 	GLsizei countObjUV;
 
-	GLfloat	znear;	// Ближняя и дальняя
-	GLfloat zfar;  // плоскости отсечения
-	GLclampf ref;			// Эталон непрозрачности альфа значения, ref=1 - абсолютно непрозрачный
-	Vector3D up;	// Текущий вектор верха камеры
-	Vector3D pos;	// Текущая позиция камеры
-	Vector3D shift; // Смещение камеры в боки
-	Vector3D pCamera;		//Где камера
-	Vector3D tCamera;		//Куда смотрит
-	Vector3D upCamera;		//Куда смотрит верх камеры
-	float	R;			//	Дистанция до центра обзора
-	float	xRot;	//	Угол поворота в плоскости XZ в радианах
-	float	yRot;	//	Угол поворота в плоскости YZ в радианах
-	float	xMov;	// Временное смещение
-	float	yMov;	// визуального обзора (Нажатие Alt)
+	GLfloat	znear;	// Р‘Р»РёР¶РЅСЏСЏ Рё РґР°Р»СЊРЅСЏСЏ
+	GLfloat zfar;  // РїР»РѕСЃРєРѕСЃС‚Рё РѕС‚СЃРµС‡РµРЅРёСЏ
+	GLclampf ref;			// Р­С‚Р°Р»РѕРЅ РЅРµРїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё Р°Р»СЊС„Р° Р·РЅР°С‡РµРЅРёСЏ, ref=1 - Р°Р±СЃРѕР»СЋС‚РЅРѕ РЅРµРїСЂРѕР·СЂР°С‡РЅС‹Р№
+	Vector3D up;	// РўРµРєСѓС‰РёР№ РІРµРєС‚РѕСЂ РІРµСЂС…Р° РєР°РјРµСЂС‹
+	Vector3D pos;	// РўРµРєСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ РєР°РјРµСЂС‹
+	Vector3D shift; // РЎРјРµС‰РµРЅРёРµ РєР°РјРµСЂС‹ РІ Р±РѕРєРё
+	Vector3D pCamera;		//Р“РґРµ РєР°РјРµСЂР°
+	Vector3D tCamera;		//РљСѓРґР° СЃРјРѕС‚СЂРёС‚
+	Vector3D upCamera;		//РљСѓРґР° СЃРјРѕС‚СЂРёС‚ РІРµСЂС… РєР°РјРµСЂС‹
+	float	R;			//	Р”РёСЃС‚Р°РЅС†РёСЏ РґРѕ С†РµРЅС‚СЂР° РѕР±Р·РѕСЂР°
+	float	xRot;	//	РЈРіРѕР» РїРѕРІРѕСЂРѕС‚Р° РІ РїР»РѕСЃРєРѕСЃС‚Рё XZ РІ СЂР°РґРёР°РЅР°С…
+	float	yRot;	//	РЈРіРѕР» РїРѕРІРѕСЂРѕС‚Р° РІ РїР»РѕСЃРєРѕСЃС‚Рё YZ РІ СЂР°РґРёР°РЅР°С…
+	float	xMov;	// Р’СЂРµРјРµРЅРЅРѕРµ СЃРјРµС‰РµРЅРёРµ
+	float	yMov;	// РІРёР·СѓР°Р»СЊРЅРѕРіРѕ РѕР±Р·РѕСЂР° (РќР°Р¶Р°С‚РёРµ Alt)
 	QTimer *timerFreqFps;
-	QPoint mPos;		// Последняя позиция мыши
-	Matrix4x4 pMatrix;		// Матрица проекции перспективы
-	Matrix4x4 vMatrix;		// Видовая матрица
+	QPoint mPos;		// РџРѕСЃР»РµРґРЅСЏСЏ РїРѕР·РёС†РёСЏ РјС‹С€Рё
+	Matrix4x4 pMatrix;		// РњР°С‚СЂРёС†Р° РїСЂРѕРµРєС†РёРё РїРµСЂСЃРїРµРєС‚РёРІС‹
+	Matrix4x4 vMatrix;		// Р’РёРґРѕРІР°СЏ РјР°С‚СЂРёС†Р°
 	GLint view[4];
 	CheckPoint beginP;
 	CheckPoint endP;
@@ -98,25 +98,25 @@ private:
 	int m_time;
 	int m_dtime;
 
-	std::set< std::shared_ptr< MeshObject > > objects;		// Это отображается
-	std::set< std::shared_ptr< MeshObstacle > > obstacles;	// а здесь коллизии
+	std::set< std::shared_ptr< MeshObject > > objects;		// Р­С‚Рѕ РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ
+	std::set< std::shared_ptr< MeshObstacle > > obstacles;	// Р° Р·РґРµСЃСЊ РєРѕР»Р»РёР·РёРё
 	std::shared_ptr< MeshObject > waterObject;
-	std::shared_ptr< MeshObstacle > waterObstacle;    // Чтобы мышкой по воде клацать
+	std::shared_ptr< MeshObstacle > waterObstacle;    // Р§С‚РѕР±С‹ РјС‹С€РєРѕР№ РїРѕ РІРѕРґРµ РєР»Р°С†Р°С‚СЊ
 	virtual void paintGL();
 	virtual void initializeGL();
-	virtual void mouseMoveEvent( QMouseEvent *event ); // Если двинули мышкой
-	virtual void mousePressEvent( QMouseEvent *event ); // Если щелкнули мышкой и проверка 
+	virtual void mouseMoveEvent( QMouseEvent *event ); // Р•СЃР»Рё РґРІРёРЅСѓР»Рё РјС‹С€РєРѕР№
+	virtual void mousePressEvent( QMouseEvent *event ); // Р•СЃР»Рё С‰РµР»РєРЅСѓР»Рё РјС‹С€РєРѕР№ Рё РїСЂРѕРІРµСЂРєР° 
 	virtual void keyReleaseEvent( QKeyEvent * event );
-	virtual void enterEvent(QEvent *event); // Если мышка наехала на виджет
+	virtual void enterEvent(QEvent *event); // Р•СЃР»Рё РјС‹С€РєР° РЅР°РµС…Р°Р»Р° РЅР° РІРёРґР¶РµС‚
 	virtual void wheelEvent( QWheelEvent *e );
-	virtual void resizeGL( int width, int height ); // Если изменили размер виджета;
+	virtual void resizeGL( int width, int height ); // Р•СЃР»Рё РёР·РјРµРЅРёР»Рё СЂР°Р·РјРµСЂ РІРёРґР¶РµС‚Р°;
 	void GetXYZ();
 	void GetDXYZ();
 	void calculateCamera();
 	void doOpacityRender();
 	void drawObjects();
 	void drawObstacles();
-	void drawObstaclesEdgesAndTri();	// Хелперные функции
+	void drawObstaclesEdgesAndTri();	// РҐРµР»РїРµСЂРЅС‹Рµ С„СѓРЅРєС†РёРё
 	void drawWater();
 	void drawCheckPoints();
 	void drawPath();

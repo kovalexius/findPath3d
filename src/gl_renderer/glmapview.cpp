@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include "glmapview.h"
 
 using namespace std;
@@ -16,21 +16,21 @@ char* filetobuf( const std::string &file )
     long length;
     char *buf;
  
-    fptr = fopen( file.c_str(), "rb" ); // Открыть файл на чтение
-    if ( !fptr ) // выйти если ошибка при инициализации fptr
+    fptr = fopen( file.c_str(), "rb" ); // РћС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РЅР° С‡С‚РµРЅРёРµ
+    if ( !fptr ) // РІС‹Р№С‚Рё РµСЃР»Рё РѕС€РёР±РєР° РїСЂРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё fptr
         return NULL;
-    fseek( fptr, 0, SEEK_END ); // Переместиться в конец файла
-    length = ftell( fptr ); // Найти размер файла
-    buf = ( char* ) malloc( length + 1 ); // Выделить буфер в который будет читаться файл
-    fseek( fptr, 0, SEEK_SET ); // Переместиться в начало файла
-    fread(buf, length, 1, fptr); // Прочитать содержимое файла в буфер
-    fclose( fptr ); // Закрыть файл
-    buf[length] = 0; // Символ конца буфера (иногда нужен ибо некоторые функции old C не принимают размер буфера)
+    fseek( fptr, 0, SEEK_END ); // РџРµСЂРµРјРµСЃС‚РёС‚СЊСЃСЏ РІ РєРѕРЅРµС† С„Р°Р№Р»Р°
+    length = ftell( fptr ); // РќР°Р№С‚Рё СЂР°Р·РјРµСЂ С„Р°Р№Р»Р°
+    buf = ( char* ) malloc( length + 1 ); // Р’С‹РґРµР»РёС‚СЊ Р±СѓС„РµСЂ РІ РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ С‡РёС‚Р°С‚СЊСЃСЏ С„Р°Р№Р»
+    fseek( fptr, 0, SEEK_SET ); // РџРµСЂРµРјРµСЃС‚РёС‚СЊСЃСЏ РІ РЅР°С‡Р°Р»Рѕ С„Р°Р№Р»Р°
+    fread(buf, length, 1, fptr); // РџСЂРѕС‡РёС‚Р°С‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ С„Р°Р№Р»Р° РІ Р±СѓС„РµСЂ
+    fclose( fptr ); // Р—Р°РєСЂС‹С‚СЊ С„Р°Р№Р»
+    buf[length] = 0; // РЎРёРјРІРѕР» РєРѕРЅС†Р° Р±СѓС„РµСЂР° (РёРЅРѕРіРґР° РЅСѓР¶РµРЅ РёР±Рѕ РЅРµРєРѕС‚РѕСЂС‹Рµ С„СѓРЅРєС†РёРё old C РЅРµ РїСЂРёРЅРёРјР°СЋС‚ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°)
  
-    return buf; // Вернуть буфер
+    return buf; // Р’РµСЂРЅСѓС‚СЊ Р±СѓС„РµСЂ
 }
 
-//! Функция печати лога шейдера
+//! Р¤СѓРЅРєС†РёСЏ РїРµС‡Р°С‚Рё Р»РѕРіР° С€РµР№РґРµСЂР°
 void shaderLog(unsigned int shader) 
 { 
   int   infologLen   = 0;
@@ -53,7 +53,7 @@ void shaderLog(unsigned int shader)
   }
 }
 
-//-----------Создание шейдеров из файла и компилиция----------
+//-----------РЎРѕР·РґР°РЅРёРµ С€РµР№РґРµСЂРѕРІ РёР· С„Р°Р№Р»Р° Рё РєРѕРјРїРёР»РёС†РёСЏ----------
 void create_shader( const std::string & vert_,
                     const std::string & frag_,
                     GLuint & vertexShader,
@@ -93,7 +93,7 @@ GLMapView::GLMapView(QWidget *parent): m_time(0), m_dtime(1)
 
 	znear=10.0;
 	zfar=1000000.0;
-	ref=1.0;		// Эталон непрозрачности =1
+	ref=1.0;		// Р­С‚Р°Р»РѕРЅ РЅРµРїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё =1
 
 	xRot = 0.0;
 	yRot = 0.5;
@@ -135,7 +135,7 @@ GLMapView::~GLMapView()
 
 void GLMapView::AddObject( const shared_ptr<MeshObject> & ob )
 {
-	objects.insert( ob );	// deprecated если VBO
+	objects.insert( ob );	// deprecated РµСЃР»Рё VBO
 }
 
 void GLMapView::AddObstacle( const shared_ptr<MeshObstacle> & ob )
@@ -162,9 +162,9 @@ void GLMapView::RemoveObject( const shared_ptr<MeshObject> & ob )
 
 void GLMapView::StartRender()
 {
-	makeCurrent();										// Чтобы glNewList работал
-	setFocusPolicy(Qt::StrongFocus);	// Установка политики фокусировки на виджет
-	setMouseTracking(true);						// Включение режима mouse трекинга при котором виджет получает сигнал движения мышки даже когда ни одна кнопка мышки не нажата
+	makeCurrent();										// Р§С‚РѕР±С‹ glNewList СЂР°Р±РѕС‚Р°Р»
+	setFocusPolicy(Qt::StrongFocus);	// РЈСЃС‚Р°РЅРѕРІРєР° РїРѕР»РёС‚РёРєРё С„РѕРєСѓСЃРёСЂРѕРІРєРё РЅР° РІРёРґР¶РµС‚
+	setMouseTracking(true);						// Р’РєР»СЋС‡РµРЅРёРµ СЂРµР¶РёРјР° mouse С‚СЂРµРєРёРЅРіР° РїСЂРё РєРѕС‚РѕСЂРѕРј РІРёРґР¶РµС‚ РїРѕР»СѓС‡Р°РµС‚ СЃРёРіРЅР°Р» РґРІРёР¶РµРЅРёСЏ РјС‹С€РєРё РґР°Р¶Рµ РєРѕРіРґР° РЅРё РѕРґРЅР° РєРЅРѕРїРєР° РјС‹С€РєРё РЅРµ РЅР°Р¶Р°С‚Р°
 
 	initWaterVBO();
 	initObjectsVBO();
@@ -224,7 +224,7 @@ void GLMapView::initObjectsVBO()
 		}
 	}
 
-	// Удаление предыдущего буфера
+	// РЈРґР°Р»РµРЅРёРµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ Р±СѓС„РµСЂР°
 	if( objTriVBO )
 		glDeleteBuffers( 1, &objTriVBO );
 
@@ -249,12 +249,12 @@ void GLMapView::initObjectsVBO()
 	glBufferData( GL_ARRAY_BUFFER, countObjUV * sizeof(float), uvs.data(), GL_STATIC_DRAW );
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
-	//-----------Создание шейдеров и компилиция----------
+	//-----------РЎРѕР·РґР°РЅРёРµ С€РµР№РґРµСЂРѕРІ Рё РєРѕРјРїРёР»РёС†РёСЏ----------
     GLuint vertexShader, fragmentShader;
     create_shader( "Land.vert", "Land.frag", vertexShader, fragmentShader );
 
 	//---------------------------------------------------
-	//--------Создание программы шейдера и линковка------
+	//--------РЎРѕР·РґР°РЅРёРµ РїСЂРѕРіСЂР°РјРјС‹ С€РµР№РґРµСЂР° Рё Р»РёРЅРєРѕРІРєР°------
 	objShaderProgram = glCreateProgram();
 	glAttachShader(objShaderProgram, vertexShader);
 	glAttachShader(objShaderProgram, fragmentShader);
@@ -325,7 +325,7 @@ void GLMapView::initWaterVBO()
 		}
 	}
 
-	// Удаление предыдущего буфера
+	// РЈРґР°Р»РµРЅРёРµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ Р±СѓС„РµСЂР°
 	if( waterTriVBO )
 		glDeleteBuffers( 1, &waterTriVBO );
 	if( waterNormVBO )
@@ -333,7 +333,7 @@ void GLMapView::initWaterVBO()
 	if( waterUvVBO )
 		glDeleteBuffers( 1, &waterUvVBO );
 
-	//Создание нового VBO и сохранение идентификатора VBO
+	//РЎРѕР·РґР°РЅРёРµ РЅРѕРІРѕРіРѕ VBO Рё СЃРѕС…СЂР°РЅРµРЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° VBO
 	glGenBuffers( 1, &waterTriVBO );
 	glBindBuffer(GL_ARRAY_BUFFER, waterTriVBO);
 	countWater = verts.size();
@@ -349,11 +349,11 @@ void GLMapView::initWaterVBO()
 	glBufferData( GL_ARRAY_BUFFER, countWaterUV * sizeof(float), uvs.data(), GL_STATIC_DRAW );
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
-	//-----------Создание шейдеров и компилиция----------
+	//-----------РЎРѕР·РґР°РЅРёРµ С€РµР№РґРµСЂРѕРІ Рё РєРѕРјРїРёР»РёС†РёСЏ----------
     GLuint vertexShader, fragmentShader;
     create_shader( "Water.vert", "Water.frag", vertexShader, fragmentShader );
 	//---------------------------------------------------
-	//--------Создание программы шейдера и линковка------
+	//--------РЎРѕР·РґР°РЅРёРµ РїСЂРѕРіСЂР°РјРјС‹ С€РµР№РґРµСЂР° Рё Р»РёРЅРєРѕРІРєР°------
 	waterShaderProgram = glCreateProgram();
 	glAttachShader( waterShaderProgram, vertexShader );
 	glAttachShader( waterShaderProgram, fragmentShader );
@@ -401,7 +401,7 @@ void GLMapView::renderFrame()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(pCamera.x,pCamera.y,pCamera.z,tCamera.x,tCamera.y,tCamera.z,upCamera.x,upCamera.y,upCamera.z);	// Установка камеры
+	gluLookAt(pCamera.x,pCamera.y,pCamera.z,tCamera.x,tCamera.y,tCamera.z,upCamera.x,upCamera.y,upCamera.z);	// РЈСЃС‚Р°РЅРѕРІРєР° РєР°РјРµСЂС‹
 	glGetDoublev( GL_MODELVIEW_MATRIX, vMatrix.getPtr() ); 
 	doOpacityRender();
 
@@ -431,21 +431,21 @@ void GLMapView::initializeGL()
 	//GLfloat lightDir0[3]={ dir.x, dir.y, dir.z };
 	//glLightfv(GL_LIGHT0, GL_POSITION, lightPos0);				//
 	//glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION,lightDir0);	//
-	//glEnable(GL_LIGHTING);		// Свет
+	//glEnable(GL_LIGHTING);		// РЎРІРµС‚
 	//glEnable(GL_LIGHT0);		// 			
-	glEnable(GL_DEPTH_TEST);	// Тест глубины
-	//glEnable(GL_CULL_FACE);		// Уничтожение back-facing полигонов
+	glEnable(GL_DEPTH_TEST);	// РўРµСЃС‚ РіР»СѓР±РёРЅС‹
+	//glEnable(GL_CULL_FACE);		// РЈРЅРёС‡С‚РѕР¶РµРЅРёРµ back-facing РїРѕР»РёРіРѕРЅРѕРІ
 	//glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
 	glCullFace(GL_FRONT_AND_BACK);
 	glEnable(GL_NORMALIZE);
-	glEnable(GL_TEXTURE_2D);	// Разрешить текстуры
+	glEnable(GL_TEXTURE_2D);	// Р Р°Р·СЂРµС€РёС‚СЊ С‚РµРєСЃС‚СѓСЂС‹
 	//glFrontFace(GL_CCW);			
-	glEnable(GL_ALPHA_TEST);	// Включение альфа теста
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);	// Параметры смешивания
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);							// Присвоение цвета окну, но не помещает на экран
+	glEnable(GL_ALPHA_TEST);	// Р’РєР»СЋС‡РµРЅРёРµ Р°Р»СЊС„Р° С‚РµСЃС‚Р°
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);	// РџР°СЂР°РјРµС‚СЂС‹ СЃРјРµС€РёРІР°РЅРёСЏ
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);							// РџСЂРёСЃРІРѕРµРЅРёРµ С†РІРµС‚Р° РѕРєРЅСѓ, РЅРѕ РЅРµ РїРѕРјРµС‰Р°РµС‚ РЅР° СЌРєСЂР°РЅ
 	glMatrixMode(GL_PROJECTION);								//
-	glLoadIdentity();														//	Установка произвольной перспективной
-	glFrustum(-1.333,1.333,-1.0,1.0,znear,zfar);	//	проекции
+	glLoadIdentity();														//	РЈСЃС‚Р°РЅРѕРІРєР° РїСЂРѕРёР·РІРѕР»СЊРЅРѕР№ РїРµСЂСЃРїРµРєС‚РёРІРЅРѕР№
+	glFrustum(-1.333,1.333,-1.0,1.0,znear,zfar);	//	РїСЂРѕРµРєС†РёРё
 	glGetDoublev( GL_PROJECTION_MATRIX, pMatrix.getPtr() ); //returns matrix as float array
 }
 
@@ -495,7 +495,7 @@ void GLMapView::keyReleaseEvent( QKeyEvent * event )
 
 void GLMapView::enterEvent(QEvent *event)
 {
-	setFocus(Qt::OtherFocusReason);		// Установка фокуса на виджет при наезде мышки на виджет
+	setFocus(Qt::OtherFocusReason);		// РЈСЃС‚Р°РЅРѕРІРєР° С„РѕРєСѓСЃР° РЅР° РІРёРґР¶РµС‚ РїСЂРё РЅР°РµР·РґРµ РјС‹С€РєРё РЅР° РІРёРґР¶РµС‚
 }
 
 void GLMapView::mousePressEvent( QMouseEvent *event )
@@ -633,8 +633,8 @@ void GLMapView::drawObstaclesEdgesAndTri()
 			if( number <= 2)
 			{
 				Edge *edg = const_cast<Edge*>( &(itMap->first) );
-				glDisable(GL_LIGHTING);		// Свет
-				glDisable(GL_LIGHT0);			// отключить
+				glDisable(GL_LIGHTING);		// РЎРІРµС‚
+				glDisable(GL_LIGHT0);			// РѕС‚РєР»СЋС‡РёС‚СЊ
 				glEnable(GL_POINT_SMOOTH);
 				glLineWidth( 4.0 );
 				glBegin( GL_LINE_STRIP );
@@ -645,8 +645,8 @@ void GLMapView::drawObstaclesEdgesAndTri()
 				colorEdge[1] -= 0.3;
 				if( colorEdge[1] < 0.2 )
 					colorEdge[1] = 1.0;
-				glEnable(GL_LIGHTING);		// Свет
-				glEnable(GL_LIGHT0);			// включить назад
+				glEnable(GL_LIGHTING);		// РЎРІРµС‚
+				glEnable(GL_LIGHT0);			// РІРєР»СЋС‡РёС‚СЊ РЅР°Р·Р°Рґ
 
 				
 				for( auto itTri = curSet->begin(); itTri != curSet->end(); itTri++ )
@@ -715,8 +715,8 @@ void GLMapView::drawWater()
 
 void GLMapView::drawCheckPoints()
 {
-	glDisable(GL_LIGHTING);		// Свет
-	glDisable(GL_LIGHT0);			// отключить
+	glDisable(GL_LIGHTING);		// РЎРІРµС‚
+	glDisable(GL_LIGHT0);			// РѕС‚РєР»СЋС‡РёС‚СЊ
 	glEnable(GL_POINT_SMOOTH);
 	if( beginP.isExist )
 	{
@@ -736,14 +736,14 @@ void GLMapView::drawCheckPoints()
 			glVertex3f( endP.position.x, endP.position.y, endP.position.z );
 		glEnd();
 	}
-	glEnable(GL_LIGHTING);		// Свет
-	glEnable(GL_LIGHT0);			// включить назад
+	glEnable(GL_LIGHTING);		// РЎРІРµС‚
+	glEnable(GL_LIGHT0);			// РІРєР»СЋС‡РёС‚СЊ РЅР°Р·Р°Рґ
 }
 
 void GLMapView::drawPath()
 {
-	glDisable(GL_LIGHTING);		// Свет
-	glDisable(GL_LIGHT0);			// отключить
+	glDisable(GL_LIGHTING);		// РЎРІРµС‚
+	glDisable(GL_LIGHT0);			// РѕС‚РєР»СЋС‡РёС‚СЊ
 
 	glLineWidth( 10.0 );
 
@@ -769,23 +769,23 @@ void GLMapView::drawPath()
 	}
 	glEnd();
 
-	glEnable(GL_LIGHTING);		// Свет
-	glEnable(GL_LIGHT0);			// включить назад
+	glEnable(GL_LIGHTING);		// РЎРІРµС‚
+	glEnable(GL_LIGHT0);			// РІРєР»СЋС‡РёС‚СЊ РЅР°Р·Р°Рґ
 }
 
 void GLMapView::doOpacityRender()
 {
 	glAlphaFunc(GL_EQUAL,ref);	
-	glDisable(GL_BLEND);	// Отключить смешение цветов
+	glDisable(GL_BLEND);	// РћС‚РєР»СЋС‡РёС‚СЊ СЃРјРµС€РµРЅРёРµ С†РІРµС‚РѕРІ
 	drawCheckPoints();
 	drawObjects();
 	drawPath();
 	glAlphaFunc(GL_LESS,ref);
-	glEnable(GL_BLEND);	// Включить смешение цветов для прозрачности
+	glEnable(GL_BLEND);	// Р’РєР»СЋС‡РёС‚СЊ СЃРјРµС€РµРЅРёРµ С†РІРµС‚РѕРІ РґР»СЏ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё
 	drawWater();
-	//.............Возвращение в исходное.............
+	//.............Р’РѕР·РІСЂР°С‰РµРЅРёРµ РІ РёСЃС…РѕРґРЅРѕРµ.............
 	glAlphaFunc(GL_EQUAL,ref);	
-	glDisable(GL_BLEND);	// Отключить смешение цветов
+	glDisable(GL_BLEND);	// РћС‚РєР»СЋС‡РёС‚СЊ СЃРјРµС€РµРЅРёРµ С†РІРµС‚РѕРІ
 	//................................................
 
 	glFlush();

@@ -1,4 +1,4 @@
-uniform float time;
+﻿uniform float time;
 varying float _diffuseReflection; // Мощность отраженнного света которая будет передаваться во фрагментный шейдер
 varying float _time;
 

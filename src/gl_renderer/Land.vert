@@ -1,4 +1,4 @@
-varying float _diffuseReflection; // Мощность отраженнного света которая будет передаваться во фрагментный шейдер
+﻿varying float _diffuseReflection; // Мощность отраженнного света которая будет передаваться во фрагментный шейдер
 
 struct lightSource
 {
